@@ -1,18 +1,30 @@
 package sample;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import java.awt.*;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+
+        primaryStage.setTitle("^_^");
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        System.out.println(screenSize);
+        final float windowSizeFactor = 1.0f/3.0f;
+
+        Group rootNode = new Group();
+        Scene scene = new Scene(rootNode, screenSize.width*windowSizeFactor, screenSize.height*windowSizeFactor);
+        primaryStage.setMinHeight(scene.getHeight());
+        primaryStage.setMinWidth(scene.getWidth());
+
+        
+
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
