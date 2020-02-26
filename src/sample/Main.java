@@ -22,7 +22,7 @@ public class Main extends Application {
         primaryStage.setMinHeight(scene.getHeight());
         primaryStage.setMinWidth(scene.getWidth());
 
-        
+        GEScene scn = new GEScene(scene);
 
         primaryStage.setScene(scene);
         primaryStage.show();
