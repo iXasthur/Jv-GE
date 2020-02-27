@@ -37,6 +37,11 @@ public class Main extends Application {
         square.setGeometry(new GESquare(50));
         square.moveTo(200,200);
         mainScene.addNodeToSelecetedLayer(square);
+
+        GENode triangle = new GENode();
+        triangle.setGeometry(new GETriangle(50));
+        triangle.moveTo(400,200);
+        mainScene.addNodeToSelecetedLayer(triangle);
     }
 
 
