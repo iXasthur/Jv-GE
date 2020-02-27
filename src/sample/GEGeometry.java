@@ -1,16 +1,21 @@
 package sample;
 
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Shape;
 
-public class GEGeometry extends Polygon {
+public class GEGeometry {
 
-    public GEGeometry(double[] _points){
-        super(_points);
+    private Shape shape = null;
+
+    public GEGeometry(double[] points){
+        shape = new Polygon(points);
     }
 
-    public void setScaleXY(double factor){
-        this.setScaleX(factor);
-        this.setScaleY(factor);
+    public GEGeometry(Shape _shape){
+        shape = _shape;
     }
 
+    public Shape getShape() {
+        return shape;
+    }
 }

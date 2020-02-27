@@ -1,25 +1,26 @@
 package sample;
 
-import javafx.scene.Group;
+import javafx.scene.shape.Shape;
 
-public class GENode extends Group {
+public class GENode {
 
-    private GEGeometry geometry = null;
+    private GEGeometry geometry;
 
     public GENode(){
-        super();
+        geometry = null;
     }
 
-    public void setGeometry(GEGeometry g){
-        if (geometry != null) {
-            this.getChildren().remove(geometry);
-        }
-        geometry = g;
-        this.getChildren().add(g);
+    public void setGeometry(GEGeometry _geometry){
+        geometry = _geometry;
     }
 
-    public GEGeometry getGeometry(){
-        return geometry;
+    public Shape getShape(){
+        return geometry.getShape();
+    }
+
+    public void moveTo(double x, double y){
+        geometry.getShape().setLayoutX(x);
+        geometry.getShape().setLayoutY(y);
     }
 
 }
