@@ -8,6 +8,8 @@ import java.awt.*;
 
 public class Main extends Application {
 
+    private GEScene mainScene = null;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
 
@@ -22,10 +24,19 @@ public class Main extends Application {
         primaryStage.setMinHeight(scene.getHeight());
         primaryStage.setMinWidth(scene.getWidth());
 
-        GEScene scn = new GEScene(scene);
+        mainScene = new GEScene(scene);
 
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        createPreview();
+    }
+
+    private void createPreview(){
+        GENode square = new GENode();
+        square.setGeometry(new GESquare(50));
+        square.moveTo(200,200);
+        mainScene.addNodeToSelecetedLayer(square);
     }
 
 
