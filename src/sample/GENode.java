@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
 public class GENode {
@@ -21,6 +22,10 @@ public class GENode {
         } else {
             return null;
         }
+    }
+
+    public void setColor(Color color){
+        getShape().setFill(color);
     }
 
     public void moveTo(double x, double y){
