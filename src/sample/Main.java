@@ -1,8 +1,10 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 
@@ -40,14 +42,24 @@ public class Main extends Application {
         square.setGeometry(new GESquare(50));
         square.setColor(Color.rgb(253,216,53));
         square.moveTo(200,200);
+        square.addClickEvent(nodeClickHandler);
         mainScene.addNodeToSelecetedLayer(square);
 
         GENode triangle = new GENode();
         triangle.setGeometry(new GETriangle(50));
         triangle.setColor(Color.rgb(253,216,53));
         triangle.moveTo(400,200);
+        triangle.addClickEvent(nodeClickHandler);
         mainScene.addNodeToSelecetedLayer(triangle);
     }
+
+    EventHandler<MouseEvent> nodeClickHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            Object clickedNode = e.getSource();
+            System.out.println(clickedNode);
+        }
+    };
 
 
     public static void main(String[] args) {

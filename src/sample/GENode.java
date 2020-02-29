@@ -1,5 +1,8 @@
 package sample;
 
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
@@ -29,13 +32,18 @@ public class GENode {
     }
 
     public void moveTo(double x, double y){
-        if (geometry != null) {
-            geometry.getShape().setLayoutX(x);
-            geometry.getShape().setLayoutY(y);
+        Shape buffShape = getShape();
+        if (buffShape != null) {
+            buffShape.setLayoutX(x);
+            buffShape.setLayoutY(y);
         } else {
             System.out.print(">Unable to move node (geometry is null) : ");
             System.out.println(this);
         }
+    }
+
+    public void addClickEvent(EventHandler<MouseEvent> h){
+        getShape().addEventHandler(MouseEvent.MOUSE_CLICKED,h);
     }
 
 }
