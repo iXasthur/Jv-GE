@@ -8,9 +8,19 @@ public class GESquare extends GEGeometry {
              1.0, -1.0,
     };
 
+    private static double[] transformVertices(double sideLength){
+        double[] buffVertices = vertices.clone();
+        for(int i=0; i< buffVertices.length; i++){
+            buffVertices[i] *= sideLength/2;
+        }
+        return buffVertices;
+    }
+
     public GESquare(double sideLength){
-        super(vertices);
-        this.getShape().setScaleX(sideLength/2);
-        this.getShape().setScaleY(sideLength/2);
+        super(transformVertices(sideLength));
+    }
+
+    public GESquare(){
+        super(transformVertices(50));
     }
 }
