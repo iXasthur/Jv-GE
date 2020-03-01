@@ -48,11 +48,11 @@ public class GEScene {
         }
     }
 
-    public void addNodeToSelecetedLayer(GENode node){
+    public void addNodeToSelectedLayer(GENode node){
         addNodeToTheLayer(selectedLayer, node);
     }
 
-    public void removeNodeFormSelecetedLayer(GENode node){
+    public void removeNodeFromSelectedLayer(GENode node){
         removeNodeFromTheLayer(selectedLayer, node);
     }
 
