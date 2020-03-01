@@ -4,7 +4,7 @@ import javafx.scene.Group;
 
 import java.util.Vector;
 
-public class GELayer extends GENode {
+public class GELayer {
 
     private Vector<GENode> layerNodes;
     private Group group;
