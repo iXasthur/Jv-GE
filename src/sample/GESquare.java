@@ -10,7 +10,7 @@ public class GESquare extends GEGeometry {
 
     private static double[] transformVertices(double sideLength){
         double[] buffVertices = vertices.clone();
-        for(int i=0; i< buffVertices.length; i++){
+        for(int i=0; i<buffVertices.length; i++){
             buffVertices[i] *= sideLength/2;
         }
         return buffVertices;

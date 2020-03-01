@@ -1,15 +1,10 @@
 package sample;
 
-public class GETriangle extends GEGeometry {
-    private final static double[] vertices = {
-             0.0,  1.0,
-            -1.0, -1.0,
-             1.0, -1.0,
-    };
+
+public class GETriangle extends GERegularPolygon {
 
     public GETriangle(double sideLength){
-        super(vertices);
-        this.getShape().setScaleX(sideLength/2);
-        this.getShape().setScaleY(sideLength/2);
+        super(sideLength*Math.sqrt(3)/3,3);
     }
+
 }

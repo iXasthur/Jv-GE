@@ -41,16 +41,44 @@ public class Main extends Application {
         GENode square = new GENode();
         square.setGeometry(new GESquare(50));
         square.setColor(Color.rgb(253,216,53));
-        square.moveTo(200,200);
+        square.moveTo(100,100);
         square.addClickEvent(nodeClickHandler);
         mainScene.addNodeToSelecetedLayer(square);
 
         GENode triangle = new GENode();
         triangle.setGeometry(new GETriangle(50));
         triangle.setColor(Color.rgb(253,216,53));
-        triangle.moveTo(400,200);
+        triangle.moveTo(200,100);
         triangle.addClickEvent(nodeClickHandler);
         mainScene.addNodeToSelecetedLayer(triangle);
+
+        GENode circle = new GENode();
+        circle.setGeometry(new GECircle(25));
+        circle.setColor(Color.rgb(253,216,53));
+        circle.moveTo(300,100);
+        circle.addClickEvent(nodeClickHandler);
+        mainScene.addNodeToSelecetedLayer(circle);
+
+        GENode pentagon = new GENode();
+        pentagon.setGeometry(new GERegularPolygon(25,5));
+        pentagon.setColor(Color.rgb(253,216,53));
+        pentagon.moveTo(400,100);
+        pentagon.addClickEvent(nodeClickHandler);
+        mainScene.addNodeToSelecetedLayer(pentagon);
+
+        GENode hexagon = new GENode();
+        hexagon.setGeometry(new GERegularPolygon(25,6));
+        hexagon.setColor(Color.rgb(253,216,53));
+        hexagon.moveTo(500,100);
+        hexagon.addClickEvent(nodeClickHandler);
+        mainScene.addNodeToSelecetedLayer(hexagon);
+
+        GENode line = new GENode();
+        line.setGeometry(new GELine(100,150,500,150));
+        line.setColor(Color.rgb(253,216,53));
+        line.setStrokeWidth(3);
+        line.addClickEvent(nodeClickHandler);
+        mainScene.addNodeToSelecetedLayer(line);
     }
 
     EventHandler<MouseEvent> nodeClickHandler = new EventHandler<MouseEvent>() {

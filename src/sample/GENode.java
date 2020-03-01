@@ -27,8 +27,21 @@ public class GENode {
         }
     }
 
-    public void setColor(Color color){
+    public void setFillColor(Color color){
         getShape().setFill(color);
+    }
+
+    public void setStrokeColor(Color color){
+        getShape().setStroke(color);
+    }
+    
+    public void setColor(Color color){
+        setFillColor(color);
+        setStrokeColor(color);
+    }
+
+    public void setStrokeWidth(double w){
+        getShape().setStrokeWidth(w);
     }
 
     public void moveTo(double x, double y){
