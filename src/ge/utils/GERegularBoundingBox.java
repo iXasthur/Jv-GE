@@ -1,18 +1,12 @@
 package ge.utils;
 
-public class GERegularBoundingBox {
+public class GERegularBoundingBox extends GEBoundingBox {
 
-    public double size;
+    public final double size;
 
-    public GERegularBoundingBox(double _size){
-        size = _size;
+    public GERegularBoundingBox(double size){
+        super(-size/2,-size/2,size/2,size/2);
+        this.size = size;
     }
 
-    public void setSize(double _size){
-        size = _size;
-    }
-
-    public double getSize(){
-        return size;
-    }
 }
