@@ -6,6 +6,8 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import ge.scene.GENode;
@@ -14,14 +16,16 @@ import ge.scene.GEScene;
 import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 
 public class Main extends Application {
 
     private GEScene mainScene = null;
+    private GENode buffPlacementNode = null;
+    private Color stdUINodeColor = Color.rgb(253,216,53);
+    private Color stdSceneNodeColor = Color.rgb(153,216,53);
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) {
 
         primaryStage.setTitle("^_^");
 
@@ -32,24 +36,39 @@ public class Main extends Application {
         System.out.println("Screen size:\n" + screenSize);
         System.out.println("Scene size:\n" + sceneSize);
 
-
         Group rootNode = new Group();
-        Color bgColor = Color.rgb(24,24,24);
+        Color bgColor = Color.rgb(255,255,255);
         Scene scene = new Scene(rootNode, sceneSize.getWidth(), sceneSize.getHeight(), bgColor);
         primaryStage.setMinHeight(scene.getHeight());
         primaryStage.setMinWidth(scene.getWidth());
 
         mainScene = new GEScene(scene);
 
+//        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, sceneClickHandler);
+//        scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        createBackgroundNode(screenSize);
         createUI(screenSize, sceneSize);
+        mainScene.createAndSelectNewLayer();
     }
 
     private void createUI(Dimension screenSize, Dimension sceneSize){
         createShapesMenu(screenSize, sceneSize);
 //        createPreview();
+    }
+
+    private void createBackgroundNode(Dimension screenSize){
+        Color bgColor = Color.rgb(24,24,24);
+        GENode bgRectangle = new GENode();
+        bgRectangle.setGeometry(new GESquare(screenSize.width));
+        bgRectangle.moveTo(screenSize.width/2.0,screenSize.height/2.0);
+        bgRectangle.setColor(bgColor);
+        bgRectangle.setStrokeWidth(3);
+        bgRectangle.addClickEvent(sceneClickHandler);
+        mainScene.addNodeToSelectedLayer(bgRectangle);
     }
 
     private void createShapesMenu(Dimension screenSize, Dimension sceneSize){
@@ -60,13 +79,11 @@ public class Main extends Application {
         int offsetY = (int)(buttonPosX*1.5);
         int buttonWidth = separatorLineX - 2*offsetX;
 
-        Color buttonColor = Color.rgb(253,216,53);
-
         GENode separatorLine = new GENode();
         separatorLine.setGeometry(new GELine(separatorLineX,0,separatorLineX, screenSize.height));
-        separatorLine.setColor(buttonColor);
+        separatorLine.setColor(stdUINodeColor);
         separatorLine.setStrokeWidth(3);
-        separatorLine.addClickEvent(uiNodeClickHandler);
+//        separatorLine.addClickEvent(mouseHandler.uiNodeClickHandler);
         mainScene.addNodeToSelectedLayer(separatorLine);
 
         GEClassFinder classFinder = new GEClassFinder("ge/geometry");
@@ -84,14 +101,14 @@ public class Main extends Application {
                     for (Constructor<?> constructor : constructors) {
                         if (constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0] == neededParameterType) {
 
-                            GEGeometry geometry = null;
+                            GEGeometry geometry;
                             try {
                                 geometry = (GEGeometry)constructor.newInstance(new GERegularBoundingBox(buttonWidth));
 
                                 GENode buffButton = new GENode();
                                 buffButton.setGeometry(geometry);
                                 buffButton.setStrokeWidth(3);
-                                buffButton.setColor(buttonColor);
+                                buffButton.setColor(stdUINodeColor);
                                 buffButton.moveTo(buttonPosX, buttonPosY);
                                 buffButton.addClickEvent(uiNodeClickHandler);
                                 mainScene.addNodeToSelectedLayer(buffButton);
@@ -112,31 +129,31 @@ public class Main extends Application {
 
     }
 
-    private void createPreview(){
-        GENode square = new GENode();
-        square.setGeometry(new GESquare(50));
-        square.setColor(Color.rgb(253,216,53));
-        square.moveTo(100,100);
-        square.addClickEvent(sceneNodeClickHandler);
-        mainScene.addNodeToSelectedLayer(square);
-
-        GENode line = new GENode();
-        line.setGeometry(new GELine(100,150,500,150));
-        line.setColor(Color.rgb(253,216,53));
-        line.setStrokeWidth(3);
-        line.addClickEvent(sceneNodeClickHandler);
-        mainScene.addNodeToSelectedLayer(line);
-    }
-
-    EventHandler<MouseEvent> uiNodeClickHandler = new EventHandler<MouseEvent>() {
+    private EventHandler<MouseEvent> uiNodeClickHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
-            Object clickedNode = e.getSource();
-            System.out.println("UI NODE:" + clickedNode);
+            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_SELECTION) {
+                Shape clickedShape = (Shape)e.getSource();
+
+                double buffX = clickedShape.getLayoutX();
+                double buffY = clickedShape.getLayoutY();
+                clickedShape.setLayoutX(0);
+                clickedShape.setLayoutY(0);
+                Shape geometryShape = Shape.union(clickedShape, new Circle(0));
+                clickedShape.setLayoutX(buffX);
+                clickedShape.setLayoutY(buffY);
+
+                buffPlacementNode = new GENode();
+                buffPlacementNode.setGeometry(new GEGeometry(geometryShape));
+                buffPlacementNode.setStrokeWidth(3);
+                buffPlacementNode.setColor(stdSceneNodeColor);
+
+                mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT);
+            }
         }
     };
 
-    EventHandler<MouseEvent> sceneNodeClickHandler = new EventHandler<MouseEvent>() {
+    private EventHandler<MouseEvent> sceneNodeClickHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
             Object clickedNode = e.getSource();
@@ -144,6 +161,28 @@ public class Main extends Application {
         }
     };
 
+    private EventHandler<MouseEvent> sceneClickHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
+                if (buffPlacementNode != null) {
+                    buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+                    buffPlacementNode.addClickEvent(uiNodeClickHandler);
+                    mainScene.addNodeToSelectedLayer(buffPlacementNode);
+                    buffPlacementNode = null;
+                }
+
+                mainScene.setState(GEScene.sceneStates.WAITING_FOR_SELECTION);
+            }
+        }
+    };
+
+    private EventHandler<MouseEvent> sceneMoveHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
+        }
+    };
 
     public static void main(String[] args) {
         launch(args);

@@ -2,6 +2,7 @@ package ge.scene;
 
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.shape.Shape;
 
 import java.util.Vector;
 
@@ -11,15 +12,32 @@ public class GEScene {
     private Vector<GELayer> sceneLayers;
     private GELayer selectedLayer;
 
+    public enum sceneStates {
+        WAITING_FOR_SELECTION,
+        WAITING_FOR_NODE_PLACEMENT
+    }
+
+    private sceneStates sceneState = sceneStates.WAITING_FOR_SELECTION;
+
+
     public GEScene(Scene rootScene){
         rootNode = (Group) rootScene.getRoot();
         sceneLayers = new Vector<>(0);
         selectedLayer = null;
 
-        createNewLayer();
+        createAndSelectNewLayer();
     }
 
-    private void createNewLayer(){
+
+    public sceneStates getSceneState(){
+        return sceneState;
+    }
+
+    public void setState(sceneStates state){
+        sceneState = state;
+    }
+
+    public void createAndSelectNewLayer(){
         GELayer newLayer = new GELayer();
         sceneLayers.addElement(newLayer);
         rootNode.getChildren().add(newLayer.getNodesGroup());
