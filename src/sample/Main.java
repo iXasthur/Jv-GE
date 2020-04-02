@@ -19,13 +19,17 @@ public class Main extends Application {
 
         primaryStage.setTitle("^_^");
 
+        final double windowSizeFactor = 1.0f/3.0f;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        System.out.println(screenSize);
-        final float windowSizeFactor = 1.0f/3.0f;
+        Dimension sceneSize = new Dimension();
+        sceneSize.setSize(screenSize.width*windowSizeFactor, screenSize.height*windowSizeFactor);
+        System.out.println("Screen size:\n" + screenSize);
+        System.out.println("Scene size:\n" + sceneSize);
+
 
         Group rootNode = new Group();
         Color bgColor = Color.rgb(24,24,24);
-        Scene scene = new Scene(rootNode, screenSize.width*windowSizeFactor, screenSize.height*windowSizeFactor, bgColor);
+        Scene scene = new Scene(rootNode, sceneSize.getWidth(), sceneSize.getHeight(), bgColor);
         primaryStage.setMinHeight(scene.getHeight());
         primaryStage.setMinWidth(scene.getWidth());
 
@@ -34,7 +38,28 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        createPreview();
+        createUI(screenSize, sceneSize);
+    }
+
+    private void createUI(Dimension screenSize, Dimension sceneSize){
+        createShapesMenu(screenSize, sceneSize);
+//        createPreview();
+    }
+
+    private void createShapesMenu(Dimension screenSize, Dimension sceneSize){
+        int separatorLineX = sceneSize.width/10;
+        GENode separatorLine = new GENode();
+        separatorLine.setGeometry(new GELine(separatorLineX,0,separatorLineX, screenSize.height));
+        separatorLine.setColor(Color.rgb(253,216,53));
+        separatorLine.setStrokeWidth(3);
+        mainScene.addNodeToSelectedLayer(separatorLine);
+
+//        GENode square = new GENode();
+//        square.setGeometry(new GESquare(50));
+//        square.setColor(Color.rgb(253,216,53));
+//        square.moveTo(100,100);
+//        square.addClickEvent(nodeClickHandler);
+//        mainScene.addNodeToSelectedLayer(square);
     }
 
     private void createPreview(){
@@ -44,34 +69,6 @@ public class Main extends Application {
         square.moveTo(100,100);
         square.addClickEvent(nodeClickHandler);
         mainScene.addNodeToSelectedLayer(square);
-
-        GENode triangle = new GENode();
-        triangle.setGeometry(new GETriangle(50));
-        triangle.setColor(Color.rgb(253,216,53));
-        triangle.moveTo(200,100);
-        triangle.addClickEvent(nodeClickHandler);
-        mainScene.addNodeToSelectedLayer(triangle);
-
-        GENode circle = new GENode();
-        circle.setGeometry(new GECircle(25));
-        circle.setColor(Color.rgb(253,216,53));
-        circle.moveTo(300,100);
-        circle.addClickEvent(nodeClickHandler);
-        mainScene.addNodeToSelectedLayer(circle);
-
-        GENode pentagon = new GENode();
-        pentagon.setGeometry(new GERegularPolygon(25,5));
-        pentagon.setColor(Color.rgb(253,216,53));
-        pentagon.moveTo(400,100);
-        pentagon.addClickEvent(nodeClickHandler);
-        mainScene.addNodeToSelectedLayer(pentagon);
-
-        GENode hexagon = new GENode();
-        hexagon.setGeometry(new GERegularPolygon(25,6));
-        hexagon.setColor(Color.rgb(253,216,53));
-        hexagon.moveTo(500,100);
-        hexagon.addClickEvent(nodeClickHandler);
-        mainScene.addNodeToSelectedLayer(hexagon);
 
         GENode line = new GENode();
         line.setGeometry(new GELine(100,150,500,150));

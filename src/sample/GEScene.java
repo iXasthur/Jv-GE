@@ -19,7 +19,7 @@ public class GEScene {
         createNewLayer();
     }
 
-    public void createNewLayer(){
+    private void createNewLayer(){
         GELayer newLayer = new GELayer();
         sceneLayers.addElement(newLayer);
         rootNode.getChildren().add(newLayer.getNodesGroup());
