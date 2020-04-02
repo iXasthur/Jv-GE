@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
+import java.util.Vector;
 
 public class Main extends Application {
 
@@ -48,18 +49,34 @@ public class Main extends Application {
 
     private void createShapesMenu(Dimension screenSize, Dimension sceneSize){
         int separatorLineX = sceneSize.width/10;
+        int offsetX = separatorLineX/4;
+        int buttonPosX = separatorLineX/2;
+        int buttonPosY = separatorLineX/2;
+        int buttonWidth = separatorLineX - 2*offsetX;
+
+        Color buttonColor = Color.rgb(253,216,53);
+
         GENode separatorLine = new GENode();
         separatorLine.setGeometry(new GELine(separatorLineX,0,separatorLineX, screenSize.height));
-        separatorLine.setColor(Color.rgb(253,216,53));
+        separatorLine.setColor(buttonColor);
         separatorLine.setStrokeWidth(3);
         mainScene.addNodeToSelectedLayer(separatorLine);
 
-//        GENode square = new GENode();
-//        square.setGeometry(new GESquare(50));
-//        square.setColor(Color.rgb(253,216,53));
-//        square.moveTo(100,100);
-//        square.addClickEvent(nodeClickHandler);
-//        mainScene.addNodeToSelectedLayer(square);
+        GENode square = new GENode();
+        square.setGeometry(new GESquare(buttonWidth));
+        square.setColor(buttonColor);
+        square.moveTo(buttonPosX, buttonPosY);
+        square.addClickEvent(nodeClickHandler);
+        mainScene.addNodeToSelectedLayer(square);
+        buttonPosY = buttonPosY + (int)(buttonPosX*1.5);
+
+        GENode triangle = new GENode();
+        triangle.setGeometry(new GETriangle(buttonWidth));
+        triangle.setColor(buttonColor);
+        triangle.moveTo(buttonPosX, buttonPosY);
+        triangle.addClickEvent(nodeClickHandler);
+        mainScene.addNodeToSelectedLayer(triangle);
+        buttonPosY = buttonPosY + (int)(buttonPosX*1.5);
     }
 
     private void createPreview(){
