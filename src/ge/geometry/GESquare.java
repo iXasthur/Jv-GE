@@ -1,4 +1,6 @@
-package sample;
+package ge.geometry;
+
+import ge.utils.GERegularBoundingBox;
 
 public class GESquare extends GEGeometry {
     private final static double[] vertices = {
@@ -20,7 +22,11 @@ public class GESquare extends GEGeometry {
         super(transformVertices(sideLength));
     }
 
-    public GESquare(){
-        super(transformVertices(50));
+    public GESquare(GERegularBoundingBox boundingBox){
+        super(transformVertices(boundingBox.size));
     }
+
+//    public GESquare(double sideLength){
+//        super(new Rectangle(sideLength, sideLength));
+//    }
 }

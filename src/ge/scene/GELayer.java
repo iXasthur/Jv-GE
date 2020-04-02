@@ -1,4 +1,4 @@
-package sample;
+package ge.scene;
 
 import javafx.scene.Group;
 

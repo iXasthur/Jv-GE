@@ -1,4 +1,4 @@
-package sample;
+package ge.geometry;
 
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
