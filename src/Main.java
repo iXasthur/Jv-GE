@@ -19,10 +19,12 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Main extends Application {
 
+    private final Color stdUINodeColor = Color.rgb(253,216,53);
+    private final Color stdPreviewNodeColor = Color.rgb(153,216,53,0.2);
+    private final Color stdSceneNodeColor = Color.rgb(153,216,53);
+
     private GEScene mainScene = null;
     private GENode buffPlacementNode = null;
-    private Color stdUINodeColor = Color.rgb(253,216,53);
-    private Color stdSceneNodeColor = Color.rgb(153,216,53);
 
     @Override
     public void start(Stage primaryStage) {
@@ -45,7 +47,7 @@ public class Main extends Application {
         mainScene = new GEScene(scene);
 
 //        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, sceneClickHandler);
-//        scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
+        scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
 
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -146,7 +148,10 @@ public class Main extends Application {
                 buffPlacementNode = new GENode();
                 buffPlacementNode.setGeometry(new GEGeometry(geometryShape));
                 buffPlacementNode.setStrokeWidth(3);
-                buffPlacementNode.setColor(stdSceneNodeColor);
+                buffPlacementNode.setColor(stdPreviewNodeColor);
+                buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+                buffPlacementNode.addClickEvent(sceneClickHandler);
+                mainScene.addNodeToSelectedLayer(buffPlacementNode);
 
                 mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT);
             }
@@ -167,8 +172,8 @@ public class Main extends Application {
             if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
                 if (buffPlacementNode != null) {
                     buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
-                    buffPlacementNode.addClickEvent(uiNodeClickHandler);
-                    mainScene.addNodeToSelectedLayer(buffPlacementNode);
+                    buffPlacementNode.setColor(stdSceneNodeColor);
+//                    buffPlacementNode.addClickEvent(sceneNodeClickHandler);
                     buffPlacementNode = null;
                 }
 
@@ -180,7 +185,12 @@ public class Main extends Application {
     private EventHandler<MouseEvent> sceneMoveHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
-            System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
+            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
+//                System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
+                if (buffPlacementNode != null) {
+                    buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+                }
+            }
         }
     };
 
