@@ -3,12 +3,15 @@ import ge.utils.GEClassFinder;
 import ge.utils.GERegularBoundingBox;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import ge.scene.GENode;
@@ -24,8 +27,15 @@ public class Main extends Application {
     private final Color stdPreviewNodeColor = Color.rgb(153,216,53,0.2);
     private final Color stdSceneNodeColor = Color.rgb(153,216,53);
 
+    private String hintSelectText = "<- Tap on figure to select it";
+    private String hintRotationScaleText = "Use wheel to rotate new figure\nand ctrl+wheel to scale it";
+
+    private final Boolean showHintOnlyOneTime = false;
+
     private GEScene mainScene = null;
     private GENode buffPlacementNode = null;
+
+    private Text hintText = null;
 
     @Override
     public void start(Stage primaryStage) {
@@ -60,8 +70,24 @@ public class Main extends Application {
     }
 
     private void createUI(Dimension screenSize, Dimension sceneSize){
-        createShapesMenu(screenSize, sceneSize);
+        int safeAreaX;
+        safeAreaX = createShapesMenu(screenSize, sceneSize);
+        createHints(safeAreaX);
 //        createPreview();
+    }
+
+    private void createHints(int posX){
+        double fontSize = posX/4.0;
+
+        hintText = new Text();
+        hintText.setText(hintSelectText);
+        hintText.setFont(new Font(fontSize));
+
+        GENode buff = new GENode();
+        buff.setGeometry(new GEGeometry(hintText));
+        buff.moveTo(posX*1.25,posX/2.0 + fontSize/4);
+        buff.setColor(stdUINodeColor);
+        mainScene.addNodeToSelectedLayer(buff);
     }
 
     private void createBackgroundNode(Dimension screenSize){
@@ -75,7 +101,7 @@ public class Main extends Application {
         mainScene.addNodeToSelectedLayer(bgRectangle);
     }
 
-    private void createShapesMenu(Dimension screenSize, Dimension sceneSize){
+    private int createShapesMenu(Dimension screenSize, Dimension sceneSize){
         int separatorLineX = sceneSize.width/10;
         int buttonPosX = separatorLineX/2;
         int buttonPosY = separatorLineX/2;
@@ -131,6 +157,7 @@ public class Main extends Application {
             }
         }
 
+        return separatorLineX;
     }
 
     private EventHandler<MouseEvent> uiNodeClickHandler = new EventHandler<MouseEvent>() {
@@ -155,6 +182,12 @@ public class Main extends Application {
                 buffPlacementNode.addClickEvent(sceneClickHandler);
                 mainScene.addNodeToSelectedLayer(buffPlacementNode);
 
+                hintText.setText(hintRotationScaleText);
+                if (showHintOnlyOneTime) {
+                    hintSelectText = "";
+                    hintRotationScaleText = "";
+                }
+
                 mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT);
             }
         }
@@ -178,6 +211,8 @@ public class Main extends Application {
 //                    buffPlacementNode.addClickEvent(sceneNodeClickHandler);
                     buffPlacementNode = null;
                 }
+
+                hintText.setText(hintSelectText);
 
                 mainScene.setState(GEScene.sceneStates.WAITING_FOR_SELECTION);
             }
