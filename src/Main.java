@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
@@ -48,6 +49,7 @@ public class Main extends Application {
 
 //        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, sceneClickHandler);
         scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
+        scene.addEventHandler(ScrollEvent.SCROLL, sceneWheelHandler);
 
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -189,6 +191,38 @@ public class Main extends Application {
 //                System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
                 if (buffPlacementNode != null) {
                     buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+                }
+            }
+        }
+    };
+
+    private void rotateBuffNodeBy(double angle){
+        if (buffPlacementNode != null) {
+            buffPlacementNode.getShape().setRotate(buffPlacementNode.getShape().getRotate() + angle);
+        }
+    }
+
+    private void addToScaleBuffNode(double d){
+        if (buffPlacementNode != null) {
+            buffPlacementNode.getShape().setScaleX(buffPlacementNode.getShape().getScaleX() + d);
+            buffPlacementNode.getShape().setScaleY(buffPlacementNode.getShape().getScaleY() + d);
+//            buffPlacementNode.getShape().setStrokeWidth(buffPlacementNode.getShape().getStrokeWidth() - buffPlacementNode.getShape().getStrokeWidth()*d);
+        }
+    }
+
+    private EventHandler<ScrollEvent> sceneWheelHandler = new EventHandler<ScrollEvent>() {
+        @Override
+        public void handle(ScrollEvent e) {
+            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
+                double d = 15;
+                if (e.getDeltaY()<0) {
+                    d = -d;
+                }
+
+                if (!e.isControlDown()) {
+                    rotateBuffNodeBy(d);
+                } else {
+                    addToScaleBuffNode(d/100.0);
                 }
             }
         }
