@@ -25,8 +25,4 @@ public class GESquare extends GEGeometry {
     public GESquare(GERegularBoundingBox boundingBox){
         super(transformVertices(boundingBox.size));
     }
-
-//    public GESquare(double sideLength){
-//        super(new Rectangle(sideLength, sideLength));
-//    }
 }

@@ -23,11 +23,15 @@ public class GEBoundingBox {
         point2.setLocation(x, y);
     }
 
-    public double getWidth(){
+    public Point getCenterPoint(){
+        return new Point((point1.x + point2.x)/2, (point1.y + point2.y)/2);
+    }
+
+    public double getWidthNoModulo(){
         return point2.x - point1.x;
     }
 
-    public double getHeight(){
+    public double getHeightNoModulo(){
         return point2.y - point1.y;
     }
 
