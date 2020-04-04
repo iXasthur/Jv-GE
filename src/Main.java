@@ -65,13 +65,14 @@ public class Main extends Application {
         primaryStage.show();
 
         createBackgroundNode(screenSize);
+        mainScene.createAndSelectNewLayer();
         createUI(screenSize, sceneSize);
         mainScene.createAndSelectNewLayer();
     }
 
     private void createUI(Dimension screenSize, Dimension sceneSize){
-        int safeAreaX;
-        safeAreaX = createShapesMenu(screenSize, sceneSize);
+        int safeAreaX = sceneSize.width/10;
+        createShapesMenu(screenSize, safeAreaX);
         createHints(safeAreaX);
 //        createPreview();
     }
@@ -101,16 +102,15 @@ public class Main extends Application {
         mainScene.addNodeToSelectedLayer(bgRectangle);
     }
 
-    private int createShapesMenu(Dimension screenSize, Dimension sceneSize){
-        int separatorLineX = sceneSize.width/10;
-        int buttonPosX = separatorLineX/2;
-        int buttonPosY = separatorLineX/2;
-        int offsetX = separatorLineX/4;
+    private void createShapesMenu(Dimension screenSize, int safeAreaX){
+        int buttonPosX = safeAreaX/2;
+        int buttonPosY = safeAreaX/2;
+        int offsetX = safeAreaX/4;
         int offsetY = (int)(buttonPosX*1.5);
-        int buttonWidth = separatorLineX - 2*offsetX;
+        int buttonWidth = safeAreaX - 2*offsetX;
 
         GENode separatorLine = new GENode();
-        separatorLine.setGeometry(new GELine(separatorLineX,0,separatorLineX, screenSize.height));
+        separatorLine.setGeometry(new GELine(safeAreaX,0,safeAreaX, screenSize.height));
         separatorLine.setColor(stdUINodeColor);
         separatorLine.setStrokeWidth(3);
 //        separatorLine.addClickEvent(mouseHandler.uiNodeClickHandler);
@@ -156,8 +156,6 @@ public class Main extends Application {
                 e.printStackTrace();
             }
         }
-
-        return separatorLineX;
     }
 
     private EventHandler<MouseEvent> uiNodeClickHandler = new EventHandler<MouseEvent>() {
