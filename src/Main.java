@@ -8,7 +8,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.*;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -20,6 +20,7 @@ import ge.scene.GEScene;
 import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 public class Main extends Application {
 
@@ -59,7 +60,7 @@ public class Main extends Application {
 
 //        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, sceneClickHandler);
         scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
-        scene.addEventHandler(ScrollEvent.SCROLL, sceneWheelHandler);
+//        scene.addEventHandler(ScrollEvent.SCROLL, sceneWheelHandler);
 
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -73,8 +74,32 @@ public class Main extends Application {
     private void createUI(Dimension screenSize, Dimension sceneSize){
         int safeAreaX = sceneSize.width/10;
         createShapesMenu(screenSize, safeAreaX);
-        createHints(safeAreaX);
+//        createHints(safeAreaX);
 //        createPreview();
+    }
+
+    private void createPreview(){
+        Path p = new Path();
+        MoveTo moveTo = new MoveTo();
+        moveTo.setX(200);
+        moveTo.setY(200);
+
+        //Creating an object of the class LineTo
+        LineTo lineTo = new LineTo();
+
+        //Setting the Properties of the line element
+        lineTo.setX(100);
+        lineTo.setY(100);
+
+        //Adding the path elements to Observable list of the Path class
+        p.getElements().add(moveTo);
+        p.getElements().add(lineTo);
+
+        GENode buff = new GENode();
+        buff.setGeometry(new GERegularPolygon(100,100,0));
+        buff.setColor(stdUINodeColor);
+        mainScene.addNodeToSelectedLayer(buff);
+
     }
 
     private void createHints(int posX){
@@ -84,20 +109,21 @@ public class Main extends Application {
         hintText.setText(hintSelectText);
         hintText.setFont(new Font(fontSize));
 
-        GENode buff = new GENode();
-        buff.setGeometry(new GEGeometry(hintText));
-        buff.moveTo(posX*1.25,posX/2.0 + fontSize/4);
-        buff.setColor(stdUINodeColor);
-        mainScene.addNodeToSelectedLayer(buff);
+//        GENode buff = new GENode();
+//        buff.setGeometry(new GEGeometry(hintText));
+//        buff.moveTo(posX*1.25,posX/2.0 + fontSize/4);
+//        buff.setColor(stdUINodeColor);
+//        mainScene.addNodeToSelectedLayer(buff);
     }
 
     private void createBackgroundNode(Dimension screenSize){
         Color bgColor = Color.rgb(24,24,24);
         GENode bgRectangle = new GENode();
-        bgRectangle.setGeometry(new GESquare(screenSize.width));
+        GERegularBoundingBox boundingBox = new GERegularBoundingBox(screenSize.width*2);
+        bgRectangle.setGeometry(new GESquare(boundingBox));
         bgRectangle.moveTo(screenSize.width/2.0,screenSize.height/2.0);
         bgRectangle.setColor(bgColor);
-        bgRectangle.setStrokeWidth(3);
+//        bgRectangle.setStrokeWidth(3);
         bgRectangle.addClickEvent(sceneClickHandler);
         mainScene.addNodeToSelectedLayer(bgRectangle);
     }
@@ -109,12 +135,12 @@ public class Main extends Application {
         int offsetY = (int)(buttonPosX*1.5);
         int buttonWidth = safeAreaX - 2*offsetX;
 
-        GENode separatorLine = new GENode();
-        separatorLine.setGeometry(new GELine(safeAreaX,0,safeAreaX, screenSize.height));
-        separatorLine.setColor(stdUINodeColor);
-        separatorLine.setStrokeWidth(3);
-//        separatorLine.addClickEvent(mouseHandler.uiNodeClickHandler);
-        mainScene.addNodeToSelectedLayer(separatorLine);
+//        GENode separatorLine = new GENode();
+//        separatorLine.setGeometry(new GELine(safeAreaX,0,safeAreaX, screenSize.height));
+//        separatorLine.setColor(stdUINodeColor);
+//        separatorLine.setStrokeWidth(3);
+////        separatorLine.addClickEvent(mouseHandler.uiNodeClickHandler);
+//        mainScene.addNodeToSelectedLayer(separatorLine);
 
         GEClassFinder classFinder = new GEClassFinder("ge/geometry");
         Class<?>[] availableGeometryClasses = classFinder.getClassesArray();
@@ -164,27 +190,28 @@ public class Main extends Application {
             if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_SELECTION) {
                 Shape clickedShape = (Shape)e.getSource();
 
-                double buffX = clickedShape.getLayoutX();
-                double buffY = clickedShape.getLayoutY();
-                clickedShape.setLayoutX(0);
-                clickedShape.setLayoutY(0);
-                Shape geometryShape = Shape.union(clickedShape, new Circle(0));
-                clickedShape.setLayoutX(buffX);
-                clickedShape.setLayoutY(buffY);
+//                double buffX = clickedShape.getLayoutX();
+//                double buffY = clickedShape.getLayoutY();
+//                clickedShape.setLayoutX(0);
+//                clickedShape.setLayoutY(0);
+//                Shape geometryShape = Shape.union(clickedShape, new Circle(0));
+//                clickedShape.setLayoutX(buffX);
+//                clickedShape.setLayoutY(buffY);
+                double[] points = mainScene.getNodeByShape(clickedShape).getGeometry().getPoints();
 
                 buffPlacementNode = new GENode();
-                buffPlacementNode.setGeometry(new GEGeometry(geometryShape));
+                buffPlacementNode.setGeometry(new GEGeometry(points));
                 buffPlacementNode.setStrokeWidth(3);
                 buffPlacementNode.setColor(stdPreviewNodeColor);
                 buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
                 buffPlacementNode.addClickEvent(sceneClickHandler);
                 mainScene.addNodeToSelectedLayer(buffPlacementNode);
 
-                hintText.setText(hintRotationScaleText);
-                if (showHintOnlyOneTime) {
-                    hintSelectText = "";
-                    hintRotationScaleText = "";
-                }
+//                hintText.setText(hintRotationScaleText);
+//                if (showHintOnlyOneTime) {
+//                    hintSelectText = "";
+//                    hintRotationScaleText = "";
+//                }
 
                 mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT);
             }
@@ -210,7 +237,7 @@ public class Main extends Application {
                     buffPlacementNode = null;
                 }
 
-                hintText.setText(hintSelectText);
+//                hintText.setText(hintSelectText);
 
                 mainScene.setState(GEScene.sceneStates.WAITING_FOR_SELECTION);
             }
@@ -231,35 +258,37 @@ public class Main extends Application {
 
     private void rotateBuffNodeBy(double angle){
         if (buffPlacementNode != null) {
-            buffPlacementNode.getShape().setRotate(buffPlacementNode.getShape().getRotate() + angle);
+            Shape shape = buffPlacementNode.getGeometry().getShape();
+            shape.setRotate(shape.getRotate() + angle);
         }
     }
 
     private void addToScaleBuffNode(double d){
         if (buffPlacementNode != null) {
-            buffPlacementNode.getShape().setScaleX(buffPlacementNode.getShape().getScaleX() + d);
-            buffPlacementNode.getShape().setScaleY(buffPlacementNode.getShape().getScaleY() + d);
+            Shape shape = buffPlacementNode.getGeometry().getShape();
+            shape.setScaleX(shape.getScaleX() + d);
+            shape.setScaleY(shape.getScaleY() + d);
 //            buffPlacementNode.getShape().setStrokeWidth(buffPlacementNode.getShape().getStrokeWidth() - buffPlacementNode.getShape().getStrokeWidth()*d);
         }
     }
 
-    private EventHandler<ScrollEvent> sceneWheelHandler = new EventHandler<ScrollEvent>() {
-        @Override
-        public void handle(ScrollEvent e) {
-            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
-                double d = 15;
-                if (e.getDeltaY()<0) {
-                    d = -d;
-                }
-
-                if (!e.isControlDown()) {
-                    rotateBuffNodeBy(d);
-                } else {
-                    addToScaleBuffNode(d/100.0);
-                }
-            }
-        }
-    };
+//    private EventHandler<ScrollEvent> sceneWheelHandler = new EventHandler<ScrollEvent>() {
+//        @Override
+//        public void handle(ScrollEvent e) {
+//            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
+//                double d = 15;
+//                if (e.getDeltaY()<0) {
+//                    d = -d;
+//                }
+//
+//                if (!e.isControlDown()) {
+//                    rotateBuffNodeBy(d);
+//                } else {
+//                    addToScaleBuffNode(d/100.0);
+//                }
+//            }
+//        }
+//    };
 
     public static void main(String[] args) {
         launch(args);

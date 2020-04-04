@@ -22,9 +22,9 @@ public class GELayer {
     }
 
     public void addNode(GENode node){
-        if (node.getShape() != null) {
+        if (node.getGeometry().getShape() != null) {
             layerNodes.addElement(node);
-            group.getChildren().add(node.getShape());
+            group.getChildren().add(node.getGeometry().getShape());
         } else {
             System.out.print(">Unable to add node to the layer: ");
             System.out.println(this);
@@ -33,13 +33,17 @@ public class GELayer {
     }
 
     public void removeNode(GENode node){
-        if (node.getShape() != null) {
+        if (node.getGeometry().getShape() != null) {
             layerNodes.removeElement(node);
-            group.getChildren().remove(node.getShape());
+            group.getChildren().remove(node.getGeometry().getShape());
         } else {
             System.out.print(">Unable to remove node from the scene: ");
             System.out.println(this);
             System.out.println(node);
         }
+    }
+
+    public Vector<GENode> getNodes(){
+        return layerNodes;
     }
 }

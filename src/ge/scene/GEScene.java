@@ -74,4 +74,15 @@ public class GEScene {
         removeNodeFromTheLayer(selectedLayer, node);
     }
 
+    public GENode getNodeByShape(Shape shape){
+        for (GELayer layer : sceneLayers){
+            Vector<GENode> nodes = layer.getNodes();
+            for (GENode node: nodes){
+                if (node.getGeometry().getShape() == shape){
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
 }

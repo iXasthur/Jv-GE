@@ -1,15 +1,14 @@
 package ge.geometry;
 
 import ge.utils.GERegularBoundingBox;
-import javafx.scene.shape.Circle;
 
-public class GECircle extends GEGeometry {
+public class GECircle extends GERegularPolygon {
 
     public GECircle(double radius){
-        super(new Circle(radius));
+        super(radius, (int)radius, 0);
     }
 
     public GECircle(GERegularBoundingBox boundingBoxSideSize){
-        super(new Circle(boundingBoxSideSize.size/2));
+        super(boundingBoxSideSize.size/2, (int)boundingBoxSideSize.size, 0);
     }
 }

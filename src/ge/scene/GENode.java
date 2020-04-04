@@ -19,20 +19,24 @@ public class GENode {
         geometry = _geometry;
     }
 
-    public Shape getShape(){
-        if (geometry != null) {
-            return geometry.getShape();
-        } else {
-            return null;
-        }
+//    public Shape getShape(){
+//        if (geometry != null) {
+//            return geometry.getShape();
+//        } else {
+//            return null;
+//        }
+//    }
+
+    public GEGeometry getGeometry(){
+        return geometry;
     }
 
     public void setFillColor(Color color){
-        getShape().setFill(color);
+        getGeometry().getShape().setFill(color);
     }
 
     public void setStrokeColor(Color color){
-        getShape().setStroke(color);
+        getGeometry().getShape().setStroke(color);
     }
     
     public void setColor(Color color){
@@ -41,11 +45,11 @@ public class GENode {
     }
 
     public void setStrokeWidth(double w){
-        getShape().setStrokeWidth(w);
+        getGeometry().getShape().setStrokeWidth(w);
     }
 
     public void moveTo(double x, double y){
-        Shape buffShape = getShape();
+        Shape buffShape = getGeometry().getShape();
         if (buffShape != null) {
             buffShape.setLayoutX(x);
             buffShape.setLayoutY(y);
@@ -56,7 +60,7 @@ public class GENode {
     }
 
     public void addClickEvent(EventHandler<MouseEvent> h){
-        getShape().addEventHandler(MouseEvent.MOUSE_CLICKED,h);
+        getGeometry().getShape().addEventHandler(MouseEvent.MOUSE_CLICKED,h);
     }
 
 }
