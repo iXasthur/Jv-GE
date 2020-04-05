@@ -14,7 +14,8 @@ public class GEScene {
 
     public enum sceneStates {
         WAITING_FOR_SELECTION,
-        WAITING_FOR_NODE_PLACEMENT
+        WAITING_FOR_NODE_PLACEMENT_POINT1,
+        WAITING_FOR_NODE_PLACEMENT_POINT2
     }
 
     private sceneStates sceneState = sceneStates.WAITING_FOR_SELECTION;

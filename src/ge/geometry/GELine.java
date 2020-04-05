@@ -1,7 +1,14 @@
 package ge.geometry;
 
 import ge.utils.GERegularBoundingBox;
-import javafx.scene.shape.Line;
+
+public class GELine extends GERegularPolygon {
+
+    public GELine(GERegularBoundingBox boundingBox){
+        super(boundingBox.size/2, 2, Math.PI/4);
+    }
+
+}
 
 //public class GELine extends GEGeometry {
 //

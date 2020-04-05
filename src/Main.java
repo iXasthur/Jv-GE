@@ -1,4 +1,5 @@
 import ge.geometry.*;
+import ge.utils.GEBoundingBox;
 import ge.utils.GEClassFinder;
 import ge.utils.GERegularBoundingBox;
 import javafx.application.Application;
@@ -29,12 +30,12 @@ public class Main extends Application {
     private final Color stdSceneNodeColor = Color.rgb(153,216,53);
 
     private String hintSelectText = "<- Tap on figure to select it";
-    private String hintRotationScaleText = "Use wheel to rotate new figure\nand ctrl+wheel to scale it";
-
-    private final Boolean showHintOnlyOneTime = false;
+    private String hintFirstPointText = "Set 1 point of the figure";
+    private String hintSecondPointText = "Set 2 point of the figure";
 
     private GEScene mainScene = null;
     private GENode buffPlacementNode = null;
+    private GEBoundingBox buffPlacementBoundingBox = null;
 
     private Text hintText = null;
 
@@ -74,7 +75,7 @@ public class Main extends Application {
     private void createUI(Dimension screenSize, Dimension sceneSize){
         int safeAreaX = sceneSize.width/10;
         createShapesMenu(screenSize, safeAreaX);
-//        createHints(safeAreaX);
+        createHints(safeAreaX);
 //        createPreview();
     }
 
@@ -109,11 +110,11 @@ public class Main extends Application {
         hintText.setText(hintSelectText);
         hintText.setFont(new Font(fontSize));
 
-//        GENode buff = new GENode();
-//        buff.setGeometry(new GEGeometry(hintText));
-//        buff.moveTo(posX*1.25,posX/2.0 + fontSize/4);
-//        buff.setColor(stdUINodeColor);
-//        mainScene.addNodeToSelectedLayer(buff);
+        GENode buff = new GENode();
+        buff.setGeometry(new GEGeometry(hintText));
+        buff.moveTo(posX*1.25,posX/2.0 + fontSize/4);
+        buff.setColor(stdUINodeColor);
+        mainScene.addNodeToSelectedLayer(buff);
     }
 
     private void createBackgroundNode(Dimension screenSize){
@@ -187,33 +188,30 @@ public class Main extends Application {
     private EventHandler<MouseEvent> uiNodeClickHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
-            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_SELECTION) {
-                Shape clickedShape = (Shape)e.getSource();
+            switch (mainScene.getSceneState()) {
+                case WAITING_FOR_SELECTION:
+                    Shape clickedShape = (Shape) e.getSource();
 
-//                double buffX = clickedShape.getLayoutX();
-//                double buffY = clickedShape.getLayoutY();
-//                clickedShape.setLayoutX(0);
-//                clickedShape.setLayoutY(0);
-//                Shape geometryShape = Shape.union(clickedShape, new Circle(0));
-//                clickedShape.setLayoutX(buffX);
-//                clickedShape.setLayoutY(buffY);
-                double[] points = mainScene.getNodeByShape(clickedShape).getGeometry().getPoints();
+                    double[] points = mainScene.getNodeByShape(clickedShape).getGeometry().getPoints();
 
-                buffPlacementNode = new GENode();
-                buffPlacementNode.setGeometry(new GEGeometry(points));
-                buffPlacementNode.setStrokeWidth(3);
-                buffPlacementNode.setColor(stdPreviewNodeColor);
-                buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
-                buffPlacementNode.addClickEvent(sceneClickHandler);
-                mainScene.addNodeToSelectedLayer(buffPlacementNode);
+                    buffPlacementNode = new GENode();
+                    buffPlacementNode.setGeometry(new GEGeometry(points));
+                    buffPlacementNode.setStrokeWidth(3);
+                    buffPlacementNode.setColor(stdPreviewNodeColor);
+                    buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+                    buffPlacementNode.addClickEvent(sceneClickHandler);
+                    mainScene.addNodeToSelectedLayer(buffPlacementNode);
 
-//                hintText.setText(hintRotationScaleText);
-//                if (showHintOnlyOneTime) {
-//                    hintSelectText = "";
-//                    hintRotationScaleText = "";
-//                }
+                    buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
 
-                mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT);
+                    hintText.setText(hintFirstPointText);
+
+                    mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
+                    break;
+                case WAITING_FOR_NODE_PLACEMENT_POINT1:
+                    break;
+                case WAITING_FOR_NODE_PLACEMENT_POINT2:
+                    break;
             }
         }
     };
@@ -229,17 +227,35 @@ public class Main extends Application {
     private EventHandler<MouseEvent> sceneClickHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
-            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
-                if (buffPlacementNode != null) {
-                    buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
-                    buffPlacementNode.setColor(stdSceneNodeColor);
-//                    buffPlacementNode.addClickEvent(sceneNodeClickHandler);
-                    buffPlacementNode = null;
-                }
+            switch (mainScene.getSceneState()) {
+                case WAITING_FOR_SELECTION:
+                    break;
+                case WAITING_FOR_NODE_PLACEMENT_POINT1:
+                    buffPlacementBoundingBox.setPoint1(e.getSceneX(), e.getSceneY());
+                    buffPlacementBoundingBox.setPoint2(e.getSceneX(), e.getSceneY());
 
-//                hintText.setText(hintSelectText);
+                    Point point1 = buffPlacementBoundingBox.getPoint1();
+                    hintText.setText(hintSecondPointText+"\n("+point1.x+", "+point1.y+")");
 
-                mainScene.setState(GEScene.sceneStates.WAITING_FOR_SELECTION);
+                    mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT2);
+                    break;
+                case WAITING_FOR_NODE_PLACEMENT_POINT2:
+                    buffPlacementBoundingBox.setPoint2(e.getSceneX(), e.getSceneY());
+
+                    if (buffPlacementNode != null) {
+                        Point p = buffPlacementBoundingBox.getCenterPoint();
+                        buffPlacementNode.moveTo(p.x, p.y);
+                        buffPlacementNode.setColor(stdSceneNodeColor);
+                        buffPlacementNode.addClickEvent(sceneNodeClickHandler);
+                        buffPlacementNode = null;
+                    }
+
+                    buffPlacementBoundingBox = null;
+
+                    hintText.setText(hintSelectText);
+
+                    mainScene.setState(GEScene.sceneStates.WAITING_FOR_SELECTION);
+                    break;
             }
         }
     };
@@ -247,11 +263,26 @@ public class Main extends Application {
     private EventHandler<MouseEvent> sceneMoveHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
-            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
-//                System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
-                if (buffPlacementNode != null) {
+//            System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
+            switch (mainScene.getSceneState()) {
+                case WAITING_FOR_SELECTION:
+                    break;
+                case WAITING_FOR_NODE_PLACEMENT_POINT1:
                     buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
-                }
+                    hintText.setText(hintFirstPointText+"\n"+"("+e.getSceneX()+", "+e.getSceneY()+")");
+                    break;
+                case WAITING_FOR_NODE_PLACEMENT_POINT2:
+                    buffPlacementBoundingBox.setPoint2(e.getSceneX(), e.getSceneY());
+                    Point point1 = buffPlacementBoundingBox.getPoint1();
+                    hintText.setText(hintSecondPointText+"\n("+point1.x+", "+point1.y+")"+" ("+e.getSceneX()+", "+e.getSceneY()+")");
+                    if (buffPlacementNode != null) {
+                        Point p = buffPlacementBoundingBox.getCenterPoint();
+                        buffPlacementNode.moveTo(p.x, p.y);
+                        double scaleX = buffPlacementBoundingBox.getWidthNoModulo()/buffPlacementNode.getInitialWidth();
+                        double scaleY = buffPlacementBoundingBox.getHeightNoModulo()/buffPlacementNode.getInitialHeight();
+                        buffPlacementNode.scaleTo(mainScene,scaleX,scaleY);
+                    }
+                    break;
             }
         }
     };

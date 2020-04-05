@@ -23,6 +23,14 @@ public class GEBoundingBox {
         point2.setLocation(x, y);
     }
 
+    public Point getPoint1(){
+        return point1;
+    }
+
+    public Point getPoint2(){
+        return point2;
+    }
+
     public Point getCenterPoint(){
         return new Point((point1.x + point2.x)/2, (point1.y + point2.y)/2);
     }

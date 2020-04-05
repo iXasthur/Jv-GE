@@ -2,20 +2,22 @@ package ge.geometry;
 
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 
 public class GEGeometry {
 
     private Shape shape = null;
-    private double[] points = new double[]{};
+    private double[] points = null;
 
     public GEGeometry(double[] points){
         shape = new Polygon(points);
         this.points = points;
     }
 
-//    public GEGeometry(Shape _shape){
-//        shape = _shape;
-//    }
+    public GEGeometry(Text text){
+        shape = text;
+        points = new double[]{};
+    }
 
     public Shape getShape() {
         return shape;
