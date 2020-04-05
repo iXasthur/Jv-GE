@@ -57,12 +57,12 @@ public class GENode {
         return geometry;
     }
 
-    private void setFillColor(Color color){
+    public void setFillColor(Color color){
         getGeometry().getShape().setFill(color);
         fillColor = color;
     }
 
-    private void setStrokeColor(Color color){
+    public void setStrokeColor(Color color){
         getGeometry().getShape().setStroke(color);
         strokeColor = color;
     }
