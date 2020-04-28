@@ -8,10 +8,11 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Vector;
 
 public class GEPolygonCreator {
@@ -21,10 +22,16 @@ public class GEPolygonCreator {
         WAITING_FOR_POINT
     }
 
+    private final String hintFirstText = "Click to create polygon by points!";
+    private final String hintPolygonPointsText = "Polygon points:";
+
     private GEScene scene = null;
     private creatorStates state = null;
     private Vector<Point2D> points = null;
-    private GENode polygonPreview = null;
+    private GENode polygonStaticPreview = null;
+//    private GENode polygonDynamicPreview = null;
+    
+    private Text hintText = null;
 
     public GEPolygonCreator(GEScene _scene){
         scene = _scene;
@@ -33,9 +40,36 @@ public class GEPolygonCreator {
     }
 
     public void createUI(EventHandler<MouseEvent> exitClickHandler) {
-        createBackgroundNode(backgroundClickHandler);
+        createBackgroundNode();
         createExitButton(exitClickHandler);
+        createHint(GEUIConstraints.safeAreaX, GEUIConstraints.safeAreaX/2.0 + GEUIConstraints.fontSize/4);
         state = creatorStates.WAITING_FOR_POINT;
+    }
+
+    private void updateHintText() {
+        StringBuilder pointsString = new StringBuilder(hintPolygonPointsText);
+        for (int i = 0; i < points.size(); i++) {
+            pointsString.append('\n');
+            pointsString.append("(");
+            pointsString.append(points.elementAt(i).getX());
+            pointsString.append(", ");
+            pointsString.append(points.elementAt(i).getY());
+            pointsString.append(")");
+        }
+        hintText.setText(pointsString.toString());
+    }
+
+    private void createHint(double posX, double posY){
+        hintText = new Text();
+        hintText.setText(hintFirstText);
+        hintText.setFont(new Font(GEUIConstraints.fontSize));
+
+        GENode buff = new GENode();
+        buff.setGeometry(new GEGeometry(hintText));
+        buff.moveTo(posX, posY);
+        buff.setColor(GEColor.stdUINodeColor);
+        buff.addClickEvent(backgroundClickHandler);
+        scene.addNodeToSelectedLayer(buff);
     }
 
     private void createExitButton(EventHandler<MouseEvent> clickHandler){
@@ -51,7 +85,7 @@ public class GEPolygonCreator {
         scene.addNodeToSelectedLayer(buffButton);
     }
 
-    private void createBackgroundNode(EventHandler<MouseEvent> clickHandler){
+    private void createBackgroundNode(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         javafx.scene.paint.Color bgColor = Color.rgb(24,24,24);
@@ -61,19 +95,20 @@ public class GEPolygonCreator {
         bgRectangle.setGeometry(new GESquare(boundingBox));
         bgRectangle.moveTo(screenSize.width/2.0,screenSize.height/2.0);
         bgRectangle.setColor(bgColor);
-        bgRectangle.addClickEvent(clickHandler);
+        bgRectangle.addClickEvent(backgroundClickHandler);
         scene.addNodeToSelectedLayer(bgRectangle);
     }
 
     private void updatePreview() {
-        if (polygonPreview != null) {
-            scene.removeNodeFromSelectedLayer(polygonPreview);
+        if (polygonStaticPreview != null) {
+            scene.removeNodeFromSelectedLayer(polygonStaticPreview);
         }
-        polygonPreview = new GENode();
-        polygonPreview.setGeometry(new GEGeometry(getPointsFlat()));
-        polygonPreview.setStrokeWidth(3);
-        polygonPreview.setColor(GEColor.stdUINodeColor);
-        scene.addNodeToSelectedLayer(polygonPreview);
+        polygonStaticPreview = new GENode();
+        polygonStaticPreview.setGeometry(new GEGeometry(getPointsFlat()));
+        polygonStaticPreview.setStrokeWidth(3);
+        polygonStaticPreview.setColor(GEColor.stdUINodeColor);
+        polygonStaticPreview.addClickEvent(backgroundClickHandler);
+        scene.addNodeToSelectedLayer(polygonStaticPreview);
     }
 
     private EventHandler<MouseEvent> backgroundClickHandler = new EventHandler<MouseEvent>() {
@@ -85,6 +120,7 @@ public class GEPolygonCreator {
                 case WAITING_FOR_POINT:
                     addPoint(e.getSceneX(), e.getSceneY());
                     updatePreview();
+                    updateHintText();
                     break;
             }
             System.out.println("CLICKED BG IN POLYGONCREATOR");
@@ -126,6 +162,10 @@ public class GEPolygonCreator {
 
     public double[] getNormalizedPointsFlat() {
         double[] buffPoints = getPointsFlat();
+
+        if (buffPoints.length < 6) {
+            return buffPoints;
+        }
 
         double minX = buffPoints[0];
         double maxX = buffPoints[0];

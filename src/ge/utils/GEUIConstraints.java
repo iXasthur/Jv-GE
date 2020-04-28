@@ -1,7 +1,5 @@
 package ge.utils;
 
-import java.awt.*;
-
 public class GEUIConstraints {
     public static int safeAreaX;
     public static int offsetX;

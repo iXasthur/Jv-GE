@@ -79,7 +79,7 @@ public class Main extends Application {
 
         createMainShapesMenu(GEUIConstraints.safeAreaX/2, GEUIConstraints.safeAreaX/2);
         createAdditionalShapesMenu(GEUIConstraints.safeAreaX*3/2, GEUIConstraints.safeAreaX/2);
-//        createHints(hintPosX, hintPosY, fontSize);
+        createHints(hintPosX, hintPosY);
     }
 
     private void createAdditionalShapesMenu(int posX, int posY){
@@ -94,10 +94,10 @@ public class Main extends Application {
         mainScene.addNodeToSelectedLayer(buffButton);
     }
 
-    private void createHints(double posX, double posY , double fontSize){
+    private void createHints(double posX, double posY){
         hintText = new Text();
         hintText.setText(hintSelectText);
-        hintText.setFont(new Font(fontSize));
+        hintText.setFont(new Font(GEUIConstraints.fontSize));
 
         GENode buff = new GENode();
         buff.setGeometry(new GEGeometry(hintText));
@@ -183,21 +183,23 @@ public class Main extends Application {
                             double[] points = polygonCreator.getNormalizedPointsFlat();
                             polygonCreator = null;
 
-                            buffPlacementNode = new GENode();
-                            buffPlacementNode.setGeometry(new GEGeometry(points));
-                            buffPlacementNode.setStrokeWidth(3);
-                            buffPlacementNode.setColor(GEColor.stdPreviewNodeColor);
-                            buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
-                            buffPlacementNode.addClickEvent(sceneClickHandler);
-                            mainScene.addNodeToSelectedLayer(buffPlacementNode);
+                            if (points.length >= 6) {
+                                buffPlacementNode = new GENode();
+                                buffPlacementNode.setGeometry(new GEGeometry(points));
+                                buffPlacementNode.setStrokeWidth(3);
+                                buffPlacementNode.setColor(GEColor.stdPreviewNodeColor);
+                                buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+                                buffPlacementNode.addClickEvent(sceneClickHandler);
+                                mainScene.addNodeToSelectedLayer(buffPlacementNode);
 
-                            buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
+                                buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
 
-                            if (hintText != null) {
-                                hintText.setText(hintFirstPointText);
+                                if (hintText != null) {
+                                    hintText.setText(hintFirstPointText);
+                                }
+
+                                mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
                             }
-
-                            mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
                             break;
                     }
                     break;
