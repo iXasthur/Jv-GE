@@ -47,6 +47,12 @@ public class GEScene {
         selectedLayer = newLayer;
     }
 
+    public void removeSelectedLayerAndSelectLast(){
+        rootNode.getChildren().remove(selectedLayer.getNodesGroup());
+        sceneLayers.remove(selectedLayer);
+        selectedLayer = sceneLayers.lastElement();
+    }
+
     private void addNodeToTheLayer(GELayer layer, GENode node){
         if (layer != null && node != null) {
             layer.addNode(node);
