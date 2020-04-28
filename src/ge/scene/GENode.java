@@ -45,14 +45,6 @@ public class GENode {
         scaleY = 1;
     }
 
-//    public Shape getShape(){
-//        if (geometry != null) {
-//            return geometry.getShape();
-//        } else {
-//            return null;
-//        }
-//    }
-
     public GEGeometry getGeometry(){
         return geometry;
     }
