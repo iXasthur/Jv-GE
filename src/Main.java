@@ -29,9 +29,9 @@ public class Main extends Application {
     private final Color stdPreviewNodeColor = Color.rgb(153,216,53,0.2);
     private final Color stdSceneNodeColor = Color.rgb(153,216,53);
 
-    private String hintSelectText = "<- Tap on figure to select it";
-    private String hintFirstPointText = "Set 1 point of the figure";
-    private String hintSecondPointText = "Set 2 point of the figure";
+    private final String hintSelectText = "<- Tap on figure to select it";
+    private final String hintFirstPointText = "Set 1 point of the figure";
+    private final String hintSecondPointText = "Set 2 point of the figure";
 
     private GEScene mainScene = null;
     private GENode buffPlacementNode = null;
