@@ -35,6 +35,14 @@ public class GEBoundingBox {
         return new Point((point1.x + point2.x)/2, (point1.y + point2.y)/2);
     }
 
+    public double getWidth(){
+        return Math.abs(point2.x - point1.x);
+    }
+
+    public double getHeight(){
+        return Math.abs(point2.y - point1.y);
+    }
+
     public double getWidthNoModulo(){
         return point2.x - point1.x;
     }

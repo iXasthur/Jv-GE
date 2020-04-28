@@ -5,6 +5,8 @@ import ge.geometry.GEGeometry;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -26,7 +28,7 @@ public class GEClassFinder {
         Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(packageName);
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
-            File dir = new File(url.getFile());
+            File dir = new File(URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8));
             Collections.addAll(list, Objects.requireNonNull(dir.listFiles()));
         }
         return list.toArray(new File[]{});

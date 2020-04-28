@@ -76,31 +76,6 @@ public class Main extends Application {
         int safeAreaX = sceneSize.width/10;
         createShapesMenu(screenSize, safeAreaX);
         createHints(safeAreaX);
-//        createPreview();
-    }
-
-    private void createPreview(){
-        Path p = new Path();
-        MoveTo moveTo = new MoveTo();
-        moveTo.setX(200);
-        moveTo.setY(200);
-
-        //Creating an object of the class LineTo
-        LineTo lineTo = new LineTo();
-
-        //Setting the Properties of the line element
-        lineTo.setX(100);
-        lineTo.setY(100);
-
-        //Adding the path elements to Observable list of the Path class
-        p.getElements().add(moveTo);
-        p.getElements().add(lineTo);
-
-        GENode buff = new GENode();
-        buff.setGeometry(new GERegularPolygon(100,100,0));
-        buff.setColor(stdUINodeColor);
-        mainScene.addNodeToSelectedLayer(buff);
-
     }
 
     private void createHints(int posX){

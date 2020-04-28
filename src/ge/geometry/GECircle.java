@@ -9,6 +9,6 @@ public class GECircle extends GERegularPolygon {
     }
 
     public GECircle(GERegularBoundingBox boundingBoxSideSize){
-        super(boundingBoxSideSize.size/2, (int)boundingBoxSideSize.size, 0);
+        super(boundingBoxSideSize.size/2, 360, 0);
     }
 }
