@@ -31,6 +31,8 @@ public class Main extends Application {
 
     private GEPolygonCreator polygonCreator = null;
 
+    private boolean disableMouseMoveEvent = false;
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -59,7 +61,7 @@ public class Main extends Application {
         mainScene = new GEScene(scene);
 
 //        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, sceneClickHandler);
-        scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
+//        scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
 //        scene.addEventHandler(ScrollEvent.SCROLL, sceneWheelHandler);
 
         primaryStage.setScene(scene);
@@ -91,6 +93,7 @@ public class Main extends Application {
         buffButton.setColor(GEColor.stdUINodeColor);
         buffButton.moveTo(posX, posY);
         buffButton.addClickEvent(uiPolygonCreatorClickHandler);
+        buffButton.addMoveEvent(sceneMoveHandler);
         mainScene.addNodeToSelectedLayer(buffButton);
     }
 
@@ -103,13 +106,14 @@ public class Main extends Application {
         buff.setGeometry(new GEGeometry(hintText));
         buff.moveTo(posX, posY);
         buff.setColor(GEColor.stdUINodeColor);
+        buff.addMoveEvent(sceneMoveHandler);
         mainScene.addNodeToSelectedLayer(buff);
     }
 
     private void createBackgroundNode(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        Color bgColor = Color.rgb(24,24,24);
+        Color bgColor = GEColor.stdBackgroundColor;
         GENode bgRectangle = new GENode();
         GERegularBoundingBox boundingBox = new GERegularBoundingBox(screenSize.width*2);
         bgRectangle.setGeometry(new GESquare(boundingBox));
@@ -117,6 +121,7 @@ public class Main extends Application {
         bgRectangle.setColor(bgColor);
 //        bgRectangle.setStrokeWidth(3);
         bgRectangle.addClickEvent(sceneClickHandler);
+        bgRectangle.addMoveEvent(sceneMoveHandler);
         mainScene.addNodeToSelectedLayer(bgRectangle);
     }
 
@@ -146,6 +151,7 @@ public class Main extends Application {
                                 buffButton.setColor(GEColor.stdUINodeColor);
                                 buffButton.moveTo(posX, posY);
                                 buffButton.addClickEvent(uiNodeSpawnerClickHandler);
+                                buffButton.addMoveEvent(sceneMoveHandler);
                                 mainScene.addNodeToSelectedLayer(buffButton);
                                 posY = posY + GEUIConstraints.offsetY;
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -176,12 +182,17 @@ public class Main extends Application {
                         case WAITING_FOR_UI_CREATION:
                             mainScene.createAndSelectNewLayer();
                             polygonCreator.createUI(uiPolygonCreatorClickHandler);
+
+                            disableMouseMoveEvent = true;
+
                             break;
                         case WAITING_FOR_POINT:
                             mainScene.removeSelectedLayerAndSelectLast();
 
                             double[] points = polygonCreator.getNormalizedPointsFlat();
                             polygonCreator = null;
+
+                            disableMouseMoveEvent = false;
 
                             if (points.length >= 6) {
                                 buffPlacementNode = new GENode();
@@ -226,6 +237,7 @@ public class Main extends Application {
                     buffPlacementNode.setColor(GEColor.stdPreviewNodeColor);
                     buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
                     buffPlacementNode.addClickEvent(sceneClickHandler);
+                    buffPlacementNode.addMoveEvent(sceneMoveHandler);
                     mainScene.addNodeToSelectedLayer(buffPlacementNode);
 
                     buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
@@ -295,7 +307,11 @@ public class Main extends Application {
     private EventHandler<MouseEvent> sceneMoveHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
+            if (disableMouseMoveEvent) {
+                return;
+            }
 //            System.out.println("SCENE MOUSE MOVED: x:" + e.getSceneX() + " y:" + e.getSceneY());
+
             switch (mainScene.getSceneState()) {
                 case WAITING_FOR_SELECTION:
                     break;

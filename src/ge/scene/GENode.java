@@ -89,6 +89,13 @@ public class GENode {
         }
     }
 
+    public void addMoveEvent(EventHandler<MouseEvent> h){
+        getGeometry().getShape().addEventHandler(MouseEvent.MOUSE_MOVED,h);
+        if (!clickEvents.contains(h)) {
+            clickEvents.addElement(h);
+        }
+    }
+
     private void updateShape(){
         setFillColor(fillColor);
         setStrokeColor(strokeColor);

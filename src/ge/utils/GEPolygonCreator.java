@@ -7,7 +7,6 @@ import ge.scene.GEScene;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -30,7 +29,7 @@ public class GEPolygonCreator {
     private Vector<Point2D> points = null;
     private GENode polygonStaticPreview = null;
 //    private GENode polygonDynamicPreview = null;
-    
+
     private Text hintText = null;
 
     public GEPolygonCreator(GEScene _scene){
@@ -69,6 +68,7 @@ public class GEPolygonCreator {
         buff.moveTo(posX, posY);
         buff.setColor(GEColor.stdUINodeColor);
         buff.addClickEvent(backgroundClickHandler);
+        buff.addMoveEvent(backgroundMoveHandler);
         scene.addNodeToSelectedLayer(buff);
     }
 
@@ -82,13 +82,14 @@ public class GEPolygonCreator {
         buffButton.setColor(GEColor.stdUINodeColor);
         buffButton.moveTo(posX, posY);
         buffButton.addClickEvent(clickHandler);
+        buffButton.addMoveEvent(backgroundMoveHandler);
         scene.addNodeToSelectedLayer(buffButton);
     }
 
     private void createBackgroundNode(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        javafx.scene.paint.Color bgColor = Color.rgb(24,24,24);
+        javafx.scene.paint.Color bgColor = GEColor.stdBackgroundColor;
 
         GENode bgRectangle = new GENode();
         GERegularBoundingBox boundingBox = new GERegularBoundingBox(screenSize.width*2);
@@ -96,6 +97,7 @@ public class GEPolygonCreator {
         bgRectangle.moveTo(screenSize.width/2.0,screenSize.height/2.0);
         bgRectangle.setColor(bgColor);
         bgRectangle.addClickEvent(backgroundClickHandler);
+        bgRectangle.addMoveEvent(backgroundMoveHandler);
         scene.addNodeToSelectedLayer(bgRectangle);
     }
 
@@ -107,25 +109,11 @@ public class GEPolygonCreator {
         polygonStaticPreview.setGeometry(new GEGeometry(getPointsFlat()));
         polygonStaticPreview.setStrokeWidth(3);
         polygonStaticPreview.setColor(GEColor.stdUINodeColor);
+        polygonStaticPreview.setFillColor(GEColor.stdBackgroundColor);
         polygonStaticPreview.addClickEvent(backgroundClickHandler);
+        polygonStaticPreview.addMoveEvent(backgroundMoveHandler);
         scene.addNodeToSelectedLayer(polygonStaticPreview);
     }
-
-    private EventHandler<MouseEvent> backgroundClickHandler = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent e) {
-            switch (state) {
-                case WAITING_FOR_UI_CREATION:
-                    break;
-                case WAITING_FOR_POINT:
-                    addPoint(e.getSceneX(), e.getSceneY());
-                    updatePreview();
-                    updateHintText();
-                    break;
-            }
-            System.out.println("CLICKED BG IN POLYGONCREATOR");
-        }
-    };
 
     public creatorStates getState() {
         return state;
@@ -137,6 +125,10 @@ public class GEPolygonCreator {
 
     public void addPoint(double x, double y) {
         points.add(new Point2D(x, y));
+    }
+
+    private void removeLastPoint() {
+        points.remove(points.lastElement());
     }
 
     public static double[] getSamplePolygonPoints(GERegularBoundingBox boundingBox){
@@ -230,4 +222,36 @@ public class GEPolygonCreator {
         }
         return buffPoints;
     }
+
+    private EventHandler<MouseEvent> backgroundClickHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            switch (state) {
+                case WAITING_FOR_UI_CREATION:
+                    break;
+                case WAITING_FOR_POINT:
+                    addPoint(e.getSceneX(), e.getSceneY());
+                    updatePreview();
+                    updateHintText();
+                    break;
+            }
+            System.out.println("CLICKED BG IN POLYGONCREATOR");
+        }
+    };
+
+    private EventHandler<MouseEvent> backgroundMoveHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            switch (state) {
+                case WAITING_FOR_UI_CREATION:
+                    break;
+                case WAITING_FOR_POINT:
+                    addPoint(e.getSceneX(), e.getSceneY());
+                    updatePreview();
+                    updateHintText();
+                    removeLastPoint();
+                    break;
+            }
+        }
+    };
 }
