@@ -1,7 +1,9 @@
+import ge.utils.GEKeyListener;
 import ge.utils.GEUIConstraints;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -40,6 +42,8 @@ public class Main extends Application {
         editorScene = new EditorScene(scene);
         editorScene.createBackgroundNode();
         editorScene.createUI();
+
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, GEKeyListener.keyHandler);
 
         primaryStage.setScene(scene);
         primaryStage.show();

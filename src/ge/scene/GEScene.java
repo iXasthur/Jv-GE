@@ -1,6 +1,5 @@
 package ge.scene;
 
-import com.sun.tools.javac.Main;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.shape.Shape;

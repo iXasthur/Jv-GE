@@ -44,6 +44,8 @@ public class EditorScene extends GEScene {
         polygonCreatorScene = new PolygonCreatorScene(rootScene);
         polygonCreatorScene.createUI(uiPolygonCreatorClickHandler);
         polygonCreatorScene.hide();
+
+        configureKeyListener();
     }
 
     private String createHintText() {
@@ -194,6 +196,12 @@ public class EditorScene extends GEScene {
         buffPlacementBoundingBox = new GEBoundingBox(x, y, x, y);
     }
 
+    private void configureKeyListener(){
+        GEKeyListener.action = (keyEvent) -> {
+            System.out.println(111);
+        };
+    }
+
     private EventHandler<MouseEvent> uiNodeSpawnerClickHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent e) {
@@ -223,14 +231,24 @@ public class EditorScene extends GEScene {
         @Override
         public void handle(MouseEvent e) {
             Object clickedNode = e.getSource();
-            if (e.getButton() == MouseButton.SECONDARY) {
-                GENode node = getNodeByShape((Shape)clickedNode);
-                Color newColor = GEColor.random();
-                while (node.getFillColor() == newColor) {
-                    newColor = GEColor.random();
-                }
+            GENode node = getNodeByShape((Shape)clickedNode);
 
-                node.setColor(newColor);
+            switch (e.getButton()) {
+                case PRIMARY:
+                    if (e.isControlDown()) {
+                        Color newColor = GEColor.random();
+                        while (node.getFillColor() == newColor) {
+                            newColor = GEColor.random();
+                        }
+
+                        node.setColor(newColor);
+                    }
+                    break;
+                case SECONDARY:
+                    if (e.isControlDown()) {
+                        removeNodeFromMainLayer(node);
+                    }
+                    break;
             }
         }
     };
@@ -321,10 +339,12 @@ public class EditorScene extends GEScene {
                 case WAITING_FOR_UNVEILING:
                     polygonCreatorScene.resetPolygon();
                     polygonCreatorScene.show();
+                    polygonCreatorScene.configureKeyListener();
                     polygonCreatorScene.setState(PolygonCreatorScene.SceneState.WAITING_FOR_POINT);
                     break;
                 case WAITING_FOR_POINT:
                     polygonCreatorScene.hide();
+                    configureKeyListener();
                     polygonCreatorScene.setState(PolygonCreatorScene.SceneState.WAITING_FOR_UNVEILING);
 
                     double[] points = polygonCreatorScene.getNormalizedPointsFlat();
@@ -342,11 +362,6 @@ public class EditorScene extends GEScene {
         }
     };
 
-//    private EventHandler<ScrollEvent> sceneWheelHandler = new EventHandler<ScrollEvent>() {
-//        @Override
-//        public void handle(ScrollEvent e) {
-//        }
-//    };
 
     public SceneState getSceneState(){
         return sceneState;

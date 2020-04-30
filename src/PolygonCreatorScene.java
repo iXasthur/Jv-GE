@@ -3,6 +3,7 @@ import ge.geometry.GESquare;
 import ge.scene.GENode;
 import ge.scene.GEScene;
 import ge.utils.GEColor;
+import ge.utils.GEKeyListener;
 import ge.utils.GERegularBoundingBox;
 import ge.utils.GEUIConstraints;
 import javafx.event.EventHandler;
@@ -227,6 +228,12 @@ public class PolygonCreatorScene extends GEScene {
             buffPoints[i*2+1] = points.elementAt(i).getY();
         }
         return buffPoints;
+    }
+
+    public void configureKeyListener(){
+        GEKeyListener.action = (keyEvent) -> {
+            System.out.println(222);
+        };
     }
 
     private EventHandler<MouseEvent> backgroundClickHandler = new EventHandler<MouseEvent>() {
