@@ -6,15 +6,15 @@ import java.util.Vector;
 
 public class GELayer {
 
-    private Vector<GENode> layerNodes;
-    private Group group;
-    private int z; // Used to sort layers, will be implemented soon
+    private final Vector<GENode> layerNodes;
+    private final Group group;
+    private final int z; // Used to sort layers, will be implemented soon
 
-    public GELayer(){
-        super();
-        layerNodes = new Vector<>(0);
+    public GELayer(int z){
+        this.z = z;
+
         group = new Group();
-        z = 0;
+        layerNodes = new Vector<>(0);
     }
 
     public Group getNodesGroup(){
@@ -22,25 +22,13 @@ public class GELayer {
     }
 
     public void addNode(GENode node){
-        if (node.getGeometry().getShape() != null) {
-            layerNodes.addElement(node);
-            group.getChildren().add(node.getGeometry().getShape());
-        } else {
-            System.out.print(">Unable to add node to the layer: ");
-            System.out.println(this);
-            System.out.println(node);
-        }
+        layerNodes.addElement(node);
+        group.getChildren().add(node.getGeometry().getGroup());
     }
 
     public void removeNode(GENode node){
-        if (node.getGeometry().getShape() != null) {
-            layerNodes.removeElement(node);
-            group.getChildren().remove(node.getGeometry().getShape());
-        } else {
-            System.out.print(">Unable to remove node from the scene: ");
-            System.out.println(this);
-            System.out.println(node);
-        }
+        layerNodes.removeElement(node);
+        group.getChildren().remove(node.getGeometry().getGroup());
     }
 
     public Vector<GENode> getNodes(){

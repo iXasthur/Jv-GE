@@ -1,5 +1,6 @@
 package ge.scene;
 
+import com.sun.tools.javac.Main;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.shape.Shape;
@@ -8,49 +9,47 @@ import java.util.Vector;
 
 public class GEScene {
 
+    private final Scene rootScene;
     private final Group rootNode;
-    private Vector<GELayer> sceneLayers;
-    private GELayer selectedLayer;
 
-    public enum sceneStates {
+    public enum SceneStates {
         WAITING_FOR_SELECTION,
         WAITING_FOR_NODE_PLACEMENT_POINT1,
         WAITING_FOR_NODE_PLACEMENT_POINT2
     }
+    private SceneStates sceneState;
 
-    private sceneStates sceneState = sceneStates.WAITING_FOR_SELECTION;
+    private class SceneLayers {
+        public GELayer backgroundLayer;
+        public GELayer mainLayer;
+        public GELayer uiLayer;
+
+        public SceneLayers(Group root) {
+            backgroundLayer = new GELayer(0);
+            mainLayer = new GELayer(1);
+            uiLayer = new GELayer(2);
+
+            root.getChildren().add(backgroundLayer.getNodesGroup());
+            root.getChildren().add(mainLayer.getNodesGroup());
+            root.getChildren().add(uiLayer.getNodesGroup());
+        }
+    }
+    private final SceneLayers sceneLayers;
 
 
     public GEScene(Scene rootScene){
+        this.rootScene = rootScene;
         rootNode = (Group) rootScene.getRoot();
-        sceneLayers = new Vector<>(0);
-        selectedLayer = null;
-
-        createAndSelectNewLayer();
+        sceneState = SceneStates.WAITING_FOR_SELECTION;
+        sceneLayers = new SceneLayers(rootNode);
     }
 
-
-    public sceneStates getSceneState(){
+    public SceneStates getSceneState(){
         return sceneState;
     }
 
-    public void setState(sceneStates state){
+    public void setState(SceneStates state){
         sceneState = state;
-    }
-
-    public void createAndSelectNewLayer(){
-        GELayer newLayer = new GELayer();
-        sceneLayers.addElement(newLayer);
-        rootNode.getChildren().add(newLayer.getNodesGroup());
-        // Add handle of Z value
-
-        selectedLayer = newLayer;
-    }
-
-    public void removeSelectedLayerAndSelectLast(){
-        rootNode.getChildren().remove(selectedLayer.getNodesGroup());
-        sceneLayers.remove(selectedLayer);
-        selectedLayer = sceneLayers.lastElement();
     }
 
     private void addNodeToTheLayer(GELayer layer, GENode node){
@@ -73,16 +72,37 @@ public class GEScene {
         }
     }
 
-    public void addNodeToSelectedLayer(GENode node){
-        addNodeToTheLayer(selectedLayer, node);
+    public void addNodeToBackgroundLayer(GENode node) {
+        addNodeToTheLayer(sceneLayers.backgroundLayer, node);
     }
 
-    public void removeNodeFromSelectedLayer(GENode node){
-        removeNodeFromTheLayer(selectedLayer, node);
+    public void addNodeToMainLayer(GENode node) {
+        addNodeToTheLayer(sceneLayers.mainLayer, node);
+    }
+
+    public void addNodeToUILayer(GENode node) {
+        addNodeToTheLayer(sceneLayers.uiLayer, node);
+    }
+
+    public void removeNodeFromBackgroundLayer(GENode node){
+        removeNodeFromTheLayer(sceneLayers.backgroundLayer, node);
+    }
+
+    public void removeNodeFromMainLayer(GENode node){
+        removeNodeFromTheLayer(sceneLayers.mainLayer, node);
+    }
+
+    public void removeNodeFromUILayer(GENode node){
+        removeNodeFromTheLayer(sceneLayers.uiLayer, node);
     }
 
     public GENode getNodeByShape(Shape shape){
-        for (GELayer layer : sceneLayers){
+        GELayer[] layers = new GELayer[3];
+        layers[0] = sceneLayers.backgroundLayer;
+        layers[1] = sceneLayers.mainLayer;
+        layers[2] = sceneLayers.uiLayer;
+
+        for (GELayer layer : layers){
             Vector<GENode> nodes = layer.getNodes();
             for (GENode node: nodes){
                 if (node.getGeometry().getShape() == shape){

@@ -2,6 +2,7 @@ import ge.geometry.*;
 import ge.utils.*;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
@@ -23,18 +24,23 @@ public class Main extends Application {
     private final String hintFirstPointText = "Set 1 point of the figure";
     private final String hintSecondPointText = "Set 2 point of the figure";
 
+    private Stage primaryStage;
+
     private GEScene mainScene = null;
     private GENode buffPlacementNode = null;
     private GEBoundingBox buffPlacementBoundingBox = null;
 
     private Text hintText = null;
 
-    private GEPolygonCreator polygonCreator = null;
+//    private GEPolygonCreator polygonCreator = null;
 
     private boolean disableMouseMoveEvent = false;
 
+    // TODO: FIX UI Z (IMPLEMENT GELAYER Z SORTING)
+
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
 
         primaryStage.setTitle("^_^");
 
@@ -60,17 +66,11 @@ public class Main extends Application {
 
         mainScene = new GEScene(scene);
 
-//        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, sceneClickHandler);
-//        scene.addEventHandler(MouseEvent.MOUSE_MOVED, sceneMoveHandler);
-//        scene.addEventHandler(ScrollEvent.SCROLL, sceneWheelHandler);
-
         primaryStage.setScene(scene);
         primaryStage.show();
 
         createBackgroundNode();
-        mainScene.createAndSelectNewLayer();
         createUI(sceneSize);
-        mainScene.createAndSelectNewLayer();
     }
 
     private void createUI(Dimension sceneSize){
@@ -80,49 +80,47 @@ public class Main extends Application {
         double hintPosY = GEUIConstraints.safeAreaX/2.0 + GEUIConstraints.fontSize/4;
 
         createMainShapesMenu(GEUIConstraints.safeAreaX/2, GEUIConstraints.safeAreaX/2);
-        createAdditionalShapesMenu(GEUIConstraints.safeAreaX*3/2, GEUIConstraints.safeAreaX/2);
+//        createAdditionalShapesMenu(GEUIConstraints.safeAreaX*3/2, GEUIConstraints.safeAreaX/2);
         createHints(hintPosX, hintPosY);
     }
 
-    private void createAdditionalShapesMenu(int posX, int posY){
-        double[] buttonPoints = GEPolygonCreator.getSamplePolygonPoints(new GERegularBoundingBox(GEUIConstraints.buttonWidth));
-
-        GENode buffButton = new GENode();
-        buffButton.setGeometry(new GEGeometry(buttonPoints));
-        buffButton.setStrokeWidth(3);
-        buffButton.setColor(GEColor.stdUINodeColor);
-        buffButton.moveTo(posX, posY);
-        buffButton.addClickEvent(uiPolygonCreatorClickHandler);
-        buffButton.addMoveEvent(sceneMoveHandler);
-        mainScene.addNodeToSelectedLayer(buffButton);
-    }
+//    private void createAdditionalShapesMenu(int posX, int posY){
+//        double[] buttonPoints = GEPolygonCreator.getSamplePolygonPoints(new GERegularBoundingBox(GEUIConstraints.buttonWidth));
+//
+//        GENode buffButton = new GENode();
+//        buffButton.setGeometry(new GEGeometry(buttonPoints));
+//        buffButton.setStrokeWidth(3);
+//        buffButton.setColor(GEColor.stdUINodeColor);
+//        buffButton.moveTo(posX, posY);
+//        buffButton.addClickEvent(uiPolygonCreatorClickHandler);
+//        buffButton.addMoveEvent(sceneMoveHandler);
+//        mainScene.addNodeToUILayer(buffButton);
+//    }
 
     private void createHints(double posX, double posY){
         hintText = new Text();
         hintText.setText(hintSelectText);
         hintText.setFont(new Font(GEUIConstraints.fontSize));
 
-        GENode buff = new GENode();
-        buff.setGeometry(new GEGeometry(hintText));
+        GENode buff = new GENode(new GEGeometry(hintText));
         buff.moveTo(posX, posY);
         buff.setColor(GEColor.stdUINodeColor);
         buff.addMoveEvent(sceneMoveHandler);
-        mainScene.addNodeToSelectedLayer(buff);
+        mainScene.addNodeToUILayer(buff);
     }
 
     private void createBackgroundNode(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         Color bgColor = GEColor.stdBackgroundColor;
-        GENode bgRectangle = new GENode();
         GERegularBoundingBox boundingBox = new GERegularBoundingBox(screenSize.width*2);
-        bgRectangle.setGeometry(new GESquare(boundingBox));
+        GENode bgRectangle = new GENode(new GESquare(boundingBox));
         bgRectangle.moveTo(screenSize.width/2.0,screenSize.height/2.0);
         bgRectangle.setColor(bgColor);
 //        bgRectangle.setStrokeWidth(3);
         bgRectangle.addClickEvent(sceneClickHandler);
         bgRectangle.addMoveEvent(sceneMoveHandler);
-        mainScene.addNodeToSelectedLayer(bgRectangle);
+        mainScene.addNodeToBackgroundLayer(bgRectangle);
     }
 
     private void createMainShapesMenu(int posX, int posY){
@@ -145,14 +143,13 @@ public class Main extends Application {
                             try {
                                 geometry = (GEGeometry)constructor.newInstance(new GERegularBoundingBox(GEUIConstraints.buttonWidth));
 
-                                GENode buffButton = new GENode();
-                                buffButton.setGeometry(geometry);
+                                GENode buffButton = new GENode(geometry);
                                 buffButton.setStrokeWidth(3);
                                 buffButton.setColor(GEColor.stdUINodeColor);
                                 buffButton.moveTo(posX, posY);
                                 buffButton.addClickEvent(uiNodeSpawnerClickHandler);
                                 buffButton.addMoveEvent(sceneMoveHandler);
-                                mainScene.addNodeToSelectedLayer(buffButton);
+                                mainScene.addNodeToUILayer(buffButton);
                                 posY = posY + GEUIConstraints.offsetY;
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                                 e.printStackTrace();
@@ -169,58 +166,58 @@ public class Main extends Application {
         }
     }
 
-    private EventHandler<MouseEvent> uiPolygonCreatorClickHandler = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent e) {
-            switch (mainScene.getSceneState()) {
-                case WAITING_FOR_SELECTION:
-                    if (polygonCreator == null) {
-                        polygonCreator = new GEPolygonCreator(mainScene);
-                    }
-
-                    switch (polygonCreator.getState()) {
-                        case WAITING_FOR_UI_CREATION:
-                            mainScene.createAndSelectNewLayer();
-                            polygonCreator.createUI(uiPolygonCreatorClickHandler);
-
-                            disableMouseMoveEvent = true;
-
-                            break;
-                        case WAITING_FOR_POINT:
-                            mainScene.removeSelectedLayerAndSelectLast();
-
-                            double[] points = polygonCreator.getNormalizedPointsFlat();
-                            polygonCreator = null;
-
-                            disableMouseMoveEvent = false;
-
-                            if (points.length >= 6) {
-                                buffPlacementNode = new GENode();
-                                buffPlacementNode.setGeometry(new GEGeometry(points));
-                                buffPlacementNode.setStrokeWidth(3);
-                                buffPlacementNode.setColor(GEColor.stdPreviewNodeColor);
-                                buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
-                                buffPlacementNode.addClickEvent(sceneClickHandler);
-                                mainScene.addNodeToSelectedLayer(buffPlacementNode);
-
-                                buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
-
-                                if (hintText != null) {
-                                    hintText.setText(hintFirstPointText);
-                                }
-
-                                mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
-                            }
-                            break;
-                    }
-                    break;
-                case WAITING_FOR_NODE_PLACEMENT_POINT1:
-                    break;
-                case WAITING_FOR_NODE_PLACEMENT_POINT2:
-                    break;
-            }
-        }
-    };
+//    private EventHandler<MouseEvent> uiPolygonCreatorClickHandler = new EventHandler<MouseEvent>() {
+//        @Override
+//        public void handle(MouseEvent e) {
+//            switch (mainScene.getSceneState()) {
+//                case WAITING_FOR_SELECTION:
+//                    if (polygonCreator == null) {
+//                        polygonCreator = new GEPolygonCreator(mainScene);
+//                    }
+//
+//                    switch (polygonCreator.getState()) {
+//                        case WAITING_FOR_UI_CREATION:
+//                            mainScene.createAndSelectNewLayer();
+//                            polygonCreator.createUI(uiPolygonCreatorClickHandler);
+//
+//                            disableMouseMoveEvent = true;
+//
+//                            break;
+//                        case WAITING_FOR_POINT:
+//                            mainScene.removeSelectedLayerAndSelectLast();
+//
+//                            double[] points = polygonCreator.getNormalizedPointsFlat();
+//                            polygonCreator = null;
+//
+//                            disableMouseMoveEvent = false;
+//
+//                            if (points.length >= 6) {
+//                                buffPlacementNode = new GENode();
+//                                buffPlacementNode.setGeometry(new GEGeometry(points));
+//                                buffPlacementNode.setStrokeWidth(3);
+//                                buffPlacementNode.setColor(GEColor.stdPreviewNodeColor);
+//                                buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
+//                                buffPlacementNode.addClickEvent(sceneClickHandler);
+//                                mainScene.addNodeToSelectedLayer(buffPlacementNode);
+//
+//                                buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
+//
+//                                if (hintText != null) {
+//                                    hintText.setText(hintFirstPointText);
+//                                }
+//
+//                                mainScene.setState(GEScene.SceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
+//                            }
+//                            break;
+//                    }
+//                    break;
+//                case WAITING_FOR_NODE_PLACEMENT_POINT1:
+//                    break;
+//                case WAITING_FOR_NODE_PLACEMENT_POINT2:
+//                    break;
+//            }
+//        }
+//    };
 
     private EventHandler<MouseEvent> uiNodeSpawnerClickHandler = new EventHandler<MouseEvent>() {
         @Override
@@ -231,14 +228,13 @@ public class Main extends Application {
 
                     double[] points = mainScene.getNodeByShape(clickedShape).getGeometry().getPoints();
 
-                    buffPlacementNode = new GENode();
-                    buffPlacementNode.setGeometry(new GEGeometry(points));
+                    buffPlacementNode = new GENode(new GEGeometry(points));
                     buffPlacementNode.setStrokeWidth(3);
                     buffPlacementNode.setColor(GEColor.stdPreviewNodeColor);
                     buffPlacementNode.moveTo(e.getSceneX(), e.getSceneY());
                     buffPlacementNode.addClickEvent(sceneClickHandler);
                     buffPlacementNode.addMoveEvent(sceneMoveHandler);
-                    mainScene.addNodeToSelectedLayer(buffPlacementNode);
+                    mainScene.addNodeToMainLayer(buffPlacementNode);
 
                     buffPlacementBoundingBox = new GEBoundingBox(e.getSceneX(), e.getSceneY(), e.getSceneX(), e.getSceneY());
 
@@ -246,7 +242,7 @@ public class Main extends Application {
                         hintText.setText(hintFirstPointText);
                     }
 
-                    mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
+                    mainScene.setState(GEScene.SceneStates.WAITING_FOR_NODE_PLACEMENT_POINT1);
                     break;
                 case WAITING_FOR_NODE_PLACEMENT_POINT1:
                     break;
@@ -279,7 +275,7 @@ public class Main extends Application {
                         hintText.setText(hintSecondPointText + "\n(" + point1.x + ", " + point1.y + ")");
                     }
 
-                    mainScene.setState(GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT_POINT2);
+                    mainScene.setState(GEScene.SceneStates.WAITING_FOR_NODE_PLACEMENT_POINT2);
                     break;
                 case WAITING_FOR_NODE_PLACEMENT_POINT2:
                     buffPlacementBoundingBox.setPoint2(e.getSceneX(), e.getSceneY());
@@ -298,7 +294,7 @@ public class Main extends Application {
                         hintText.setText(hintSelectText);
                     }
 
-                    mainScene.setState(GEScene.sceneStates.WAITING_FOR_SELECTION);
+                    mainScene.setState(GEScene.SceneStates.WAITING_FOR_SELECTION);
                     break;
             }
         }
@@ -330,46 +326,22 @@ public class Main extends Application {
                     if (buffPlacementNode != null) {
                         Point p = buffPlacementBoundingBox.getCenterPoint();
                         buffPlacementNode.moveTo(p.x, p.y);
-                        double scaleX = buffPlacementBoundingBox.getWidthNoModulo()/buffPlacementNode.getInitialWidth();
-                        double scaleY = buffPlacementBoundingBox.getHeightNoModulo()/buffPlacementNode.getInitialHeight();
-                        buffPlacementNode.scaleTo(mainScene,scaleX,scaleY);
+
+                        Bounds initialBounds = buffPlacementNode.getGeometry().getInitialBounds();
+                        double scaleX = buffPlacementBoundingBox.getWidthNoModulo()/initialBounds.getWidth();
+                        double scaleY = buffPlacementBoundingBox.getHeightNoModulo()/initialBounds.getHeight();
+                        buffPlacementNode.scaleTo(scaleX, scaleY);
                     }
                     break;
             }
         }
     };
 
-    private void rotateBuffNodeBy(double angle){
-        if (buffPlacementNode != null) {
-            Shape shape = buffPlacementNode.getGeometry().getShape();
-            shape.setRotate(shape.getRotate() + angle);
-        }
-    }
 
-    private void addToScaleBuffNode(double d){
-        if (buffPlacementNode != null) {
-            Shape shape = buffPlacementNode.getGeometry().getShape();
-            shape.setScaleX(shape.getScaleX() + d);
-            shape.setScaleY(shape.getScaleY() + d);
-//            buffPlacementNode.getShape().setStrokeWidth(buffPlacementNode.getShape().getStrokeWidth() - buffPlacementNode.getShape().getStrokeWidth()*d);
-        }
-    }
 
 //    private EventHandler<ScrollEvent> sceneWheelHandler = new EventHandler<ScrollEvent>() {
 //        @Override
 //        public void handle(ScrollEvent e) {
-//            if (mainScene.getSceneState() == GEScene.sceneStates.WAITING_FOR_NODE_PLACEMENT) {
-//                double d = 15;
-//                if (e.getDeltaY()<0) {
-//                    d = -d;
-//                }
-//
-//                if (!e.isControlDown()) {
-//                    rotateBuffNodeBy(d);
-//                } else {
-//                    addToScaleBuffNode(d/100.0);
-//                }
-//            }
 //        }
 //    };
 

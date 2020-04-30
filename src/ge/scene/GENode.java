@@ -2,61 +2,35 @@ package ge.scene;
 
 import ge.geometry.GEGeometry;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Shape;
-
-import java.awt.*;
-import java.util.Vector;
 
 public class GENode {
 
-    private GEGeometry geometry;
-    private String name;
-    private Color fillColor;
-    private Color strokeColor;
-    private Vector<EventHandler<MouseEvent>> clickEvents;
-    private Bounds initialBounds;
-    private double[] initialPoints;
-    private double strokeWidth;
-    private double posX;
-    private double posY;
-    private double scaleX;
-    private double scaleY;
+    private final GEGeometry geometry;
+//    private double posX;
+//    private double posY;
 
-    public GENode(){
-        geometry = null;
-        initialBounds = null;
-        initialPoints = null;
-        posX = 0;
-        posY = 0;
-        scaleX = 1;
-        scaleY = 1;
-        clickEvents = new Vector<EventHandler<MouseEvent>>(0);
-    }
-
-    public void setGeometry(GEGeometry _geometry){
+    public GENode(GEGeometry _geometry){
         geometry = _geometry;
-        initialBounds = geometry.getShape().getLayoutBounds();
-        initialPoints = geometry.getPoints().clone();
-        clickEvents = new Vector<EventHandler<MouseEvent>>(0);
-        scaleX = 1;
-        scaleY = 1;
+//        posX = 0;
+//        posY = 0;
     }
+
+//    public void updateGeometry(double[] points){
+//
+//    }
 
     public GEGeometry getGeometry(){
         return geometry;
     }
 
     public void setFillColor(Color color){
-        getGeometry().getShape().setFill(color);
-        fillColor = color;
+        geometry.setFillColor(color);
     }
 
     public void setStrokeColor(Color color){
-        getGeometry().getShape().setStroke(color);
-        strokeColor = color;
+        geometry.setStrokeColor(color);
     }
     
     public void setColor(Color color){
@@ -65,75 +39,24 @@ public class GENode {
     }
 
     public void setStrokeWidth(double w){
-        getGeometry().getShape().setStrokeWidth(w);
-        strokeWidth = w;
+        geometry.setStrokeWidth(w);
     }
 
     public void moveTo(double x, double y){
-        Shape buffShape = getGeometry().getShape();
-        if (buffShape != null) {
-            buffShape.setLayoutX(x);
-            buffShape.setLayoutY(y);
-            posX = x;
-            posY = y;
-        } else {
-            System.out.print(">Unable to move node (geometry is null) : ");
-            System.out.println(this);
-        }
+        geometry.moveTo(x, y);
+//        posX = x;
+//        posY = y;
+    }
+
+    public void scaleTo(double x, double y){
+        geometry.scaleTo(x, y);
     }
 
     public void addClickEvent(EventHandler<MouseEvent> h){
-        getGeometry().getShape().addEventHandler(MouseEvent.MOUSE_CLICKED,h);
-        if (!clickEvents.contains(h)) {
-            clickEvents.addElement(h);
-        }
+        geometry.addMouseEvent(MouseEvent.MOUSE_CLICKED, h);
     }
 
     public void addMoveEvent(EventHandler<MouseEvent> h){
-        getGeometry().getShape().addEventHandler(MouseEvent.MOUSE_MOVED,h);
-        if (!clickEvents.contains(h)) {
-            clickEvents.addElement(h);
-        }
-    }
-
-    private void updateShape(){
-        setFillColor(fillColor);
-        setStrokeColor(strokeColor);
-        setStrokeWidth(strokeWidth);
-        moveTo(posX, posY);
-        for (EventHandler<MouseEvent> e: clickEvents){
-            addClickEvent(e);
-        }
-    }
-
-    public void scaleTo(GEScene scene, double x, double y){
-        if (initialPoints != null) {
-            double[] buffPoints = initialPoints.clone();
-            for (int i = 0; i < buffPoints.length; i++) {
-                if (i % 2 == 0){
-                    buffPoints[i] = buffPoints[i]*x;
-                } else {
-                    buffPoints[i] = buffPoints[i]*y;
-                }
-            }
-            scene.removeNodeFromSelectedLayer(this);
-            geometry = new GEGeometry(buffPoints);
-            updateShape();
-            scene.addNodeToSelectedLayer(this);
-
-            scaleX = x;
-            scaleY = y;
-        } else {
-            getGeometry().getShape().setScaleX(x);
-            getGeometry().getShape().setScaleY(y);
-        }
-    }
-
-    public double getInitialWidth(){
-        return initialBounds.getWidth();
-    }
-
-    public double getInitialHeight(){
-        return initialBounds.getHeight();
+        geometry.addMouseEvent(MouseEvent.MOUSE_MOVED, h);
     }
 }
