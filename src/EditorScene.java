@@ -5,8 +5,8 @@ import ge.scene.GEScene;
 import ge.utils.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -109,6 +109,7 @@ public class EditorScene extends GEScene {
         GENode buff = new GENode(new GEGeometry(hintText));
         buff.moveTo(posX, posY);
         buff.setColor(GEColor.stdUINodeColor);
+        buff.addClickEvent(sceneClickHandler);
         buff.addMoveEvent(sceneMoveHandler);
         addNodeToUILayer(buff);
 
@@ -222,7 +223,15 @@ public class EditorScene extends GEScene {
         @Override
         public void handle(MouseEvent e) {
             Object clickedNode = e.getSource();
-            System.out.println("SCENE NODE:" + getNodeByShape((Shape)clickedNode));
+            if (e.getButton() == MouseButton.SECONDARY) {
+                GENode node = getNodeByShape((Shape)clickedNode);
+                Color newColor = GEColor.random();
+                while (node.getFillColor() == newColor) {
+                    newColor = GEColor.random();
+                }
+
+                node.setColor(newColor);
+            }
         }
     };
 
@@ -312,11 +321,11 @@ public class EditorScene extends GEScene {
                 case WAITING_FOR_UNVEILING:
                     polygonCreatorScene.resetPolygon();
                     polygonCreatorScene.show();
-                    polygonCreatorScene.setState(PolygonCreatorScene.PolygonCreatorSceneState.WAITING_FOR_POINT);
+                    polygonCreatorScene.setState(PolygonCreatorScene.SceneState.WAITING_FOR_POINT);
                     break;
                 case WAITING_FOR_POINT:
                     polygonCreatorScene.hide();
-                    polygonCreatorScene.setState(PolygonCreatorScene.PolygonCreatorSceneState.WAITING_FOR_UNVEILING);
+                    polygonCreatorScene.setState(PolygonCreatorScene.SceneState.WAITING_FOR_UNVEILING);
 
                     double[] points = polygonCreatorScene.getNormalizedPointsFlat();
                     if (points.length >= 6) {
@@ -332,7 +341,6 @@ public class EditorScene extends GEScene {
             }
         }
     };
-
 
 //    private EventHandler<ScrollEvent> sceneWheelHandler = new EventHandler<ScrollEvent>() {
 //        @Override

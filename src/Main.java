@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class Main extends Application {
 
-    private Stage primaryStage;
+    private Stage primaryStage = null;
     private EditorScene editorScene = null;
 
     @Override

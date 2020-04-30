@@ -8,18 +8,10 @@ import javafx.scene.paint.Color;
 public class GENode {
 
     private final GEGeometry geometry;
-//    private double posX;
-//    private double posY;
 
     public GENode(GEGeometry _geometry){
         geometry = _geometry;
-//        posX = 0;
-//        posY = 0;
     }
-
-//    public void updateGeometry(double[] points){
-//
-//    }
 
     public GEGeometry getGeometry(){
         return geometry;
@@ -38,14 +30,20 @@ public class GENode {
         setStrokeColor(color);
     }
 
+    public Color getFillColor(){
+        return geometry.getFillColor();
+    }
+
+    public Color getStrokeColor(){
+        return geometry.getStrokeColor();
+    }
+
     public void setStrokeWidth(double w){
         geometry.setStrokeWidth(w);
     }
 
     public void moveTo(double x, double y){
         geometry.moveTo(x, y);
-//        posX = x;
-//        posY = y;
     }
 
     public void scaleTo(double x, double y){
@@ -59,4 +57,5 @@ public class GENode {
     public void addMoveEvent(EventHandler<MouseEvent> h){
         geometry.addMouseEvent(MouseEvent.MOUSE_MOVED, h);
     }
+
 }

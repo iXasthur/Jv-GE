@@ -1,7 +1,5 @@
 package ge.geometry;
 
-import ge.scene.GENode;
-import ge.scene.GEScene;
 import ge.utils.GEMouseEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -29,9 +27,6 @@ public class GEGeometry {
     private Color strokeColor;
     private double strokeWidth;
 
-//    private double scaleX;
-//    private double scaleY;
-
     private Vector<GEMouseEvent> mouseEvents;
 
     public GEGeometry(double[] _points){
@@ -44,8 +39,7 @@ public class GEGeometry {
 
         initialBounds = shape.getLayoutBounds();
         initialPoints = points.clone();
-//        scaleX = 1;
-//        scaleY = 1;
+
         mouseEvents = new Vector<GEMouseEvent>(0);
     }
 
@@ -59,8 +53,7 @@ public class GEGeometry {
 
         initialBounds = shape.getLayoutBounds();
         initialPoints = null;
-//        scaleX = 1;
-//        scaleY = 1;
+
         mouseEvents = new Vector<GEMouseEvent>(0);
     }
 
@@ -101,9 +94,6 @@ public class GEGeometry {
             shape.setScaleX(x);
             shape.setScaleY(y);
         }
-
-//        scaleX = x;
-//        scaleY = y;
     }
 
     public void setFillColor(Color color){
@@ -114,6 +104,14 @@ public class GEGeometry {
     public void setStrokeColor(Color color){
         shape.setStroke(color);
         strokeColor = color;
+    }
+
+    public Color getFillColor(){
+        return fillColor;
+    }
+
+    public Color getStrokeColor(){
+        return strokeColor;
     }
 
     public void setStrokeWidth(double w){

@@ -19,11 +19,11 @@ import java.util.Vector;
 
 public class PolygonCreatorScene extends GEScene {
 
-    public enum PolygonCreatorSceneState {
+    public enum SceneState {
         WAITING_FOR_UNVEILING,
         WAITING_FOR_POINT
     }
-    private PolygonCreatorSceneState state = null;
+    private SceneState state = null;
 
     private final String hintFirstText = "Click to create polygon by points!";
     private final String hintPolygonPointsText = "Polygon points:";
@@ -35,7 +35,7 @@ public class PolygonCreatorScene extends GEScene {
 
     public PolygonCreatorScene(Scene rootScene){
         super(rootScene);
-        setState(PolygonCreatorSceneState.WAITING_FOR_UNVEILING);
+        setState(SceneState.WAITING_FOR_UNVEILING);
 
         points = new Vector<>(0);
     }
@@ -65,17 +65,13 @@ public class PolygonCreatorScene extends GEScene {
 
     private void updateHintText() {
         StringBuilder pointsString = new StringBuilder(hintPolygonPointsText);
-        if (points.size() == 0) {
-            pointsString.append("\n(0, 0)");
-        } else {
-            for (int i = 0; i < points.size(); i++) {
-                pointsString.append('\n');
-                pointsString.append("(");
-                pointsString.append((int) points.elementAt(i).getX());
-                pointsString.append(", ");
-                pointsString.append((int) points.elementAt(i).getY());
-                pointsString.append(")");
-            }
+        for (int i = 0; i < points.size(); i++) {
+            pointsString.append('\n');
+            pointsString.append("(");
+            pointsString.append((int) points.elementAt(i).getX());
+            pointsString.append(", ");
+            pointsString.append((int) points.elementAt(i).getY());
+            pointsString.append(")");
         }
         hintText.setText(pointsString.toString());
     }
@@ -125,11 +121,11 @@ public class PolygonCreatorScene extends GEScene {
         polygonPreview.getGeometry().updateShapePoints(getPointsFlat());
     }
 
-    public PolygonCreatorSceneState getState() {
+    public SceneState getState() {
         return state;
     }
 
-    public void setState(PolygonCreatorSceneState _state) {
+    public void setState(SceneState _state) {
         state = _state;
     }
 
