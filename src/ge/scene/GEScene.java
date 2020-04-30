@@ -12,13 +12,6 @@ public class GEScene {
     private final Scene rootScene;
     private final Group rootNode;
 
-    public enum SceneStates {
-        WAITING_FOR_SELECTION,
-        WAITING_FOR_NODE_PLACEMENT_POINT1,
-        WAITING_FOR_NODE_PLACEMENT_POINT2
-    }
-    private SceneStates sceneState;
-
     private class SceneLayers {
         public GELayer backgroundLayer;
         public GELayer mainLayer;
@@ -40,16 +33,8 @@ public class GEScene {
     public GEScene(Scene rootScene){
         this.rootScene = rootScene;
         rootNode = (Group) rootScene.getRoot();
-        sceneState = SceneStates.WAITING_FOR_SELECTION;
+
         sceneLayers = new SceneLayers(rootNode);
-    }
-
-    public SceneStates getSceneState(){
-        return sceneState;
-    }
-
-    public void setState(SceneStates state){
-        sceneState = state;
     }
 
     private void addNodeToTheLayer(GELayer layer, GENode node){
@@ -111,5 +96,17 @@ public class GEScene {
             }
         }
         return null;
+    }
+
+    public void show(){
+        sceneLayers.uiLayer.show();
+        sceneLayers.mainLayer.show();
+        sceneLayers.backgroundLayer.show();
+    }
+
+    public void hide(){
+        sceneLayers.uiLayer.hide();
+        sceneLayers.mainLayer.hide();
+        sceneLayers.backgroundLayer.hide();
     }
 }

@@ -14,6 +14,8 @@ public class GELayer {
         this.z = z;
 
         group = new Group();
+        group.managedProperty().bind(group.visibleProperty());
+
         layerNodes = new Vector<>(0);
     }
 
@@ -29,6 +31,14 @@ public class GELayer {
     public void removeNode(GENode node){
         layerNodes.removeElement(node);
         group.getChildren().remove(node.getGeometry().getGroup());
+    }
+
+    public void show(){
+        group.setVisible(true);
+    }
+
+    public void hide(){
+        group.setVisible(false);
     }
 
     public Vector<GENode> getNodes(){

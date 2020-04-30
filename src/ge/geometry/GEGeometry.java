@@ -154,4 +154,7 @@ public class GEGeometry {
         return initialBounds;
     }
 
+    public Bounds getBounds(){
+        return shape.getLayoutBounds();
+    }
 }
