@@ -5,9 +5,6 @@ import ge.scene.GELayer;
 import ge.scene.GENode;
 import javafx.scene.paint.Color;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
 import java.util.Vector;
 
 public class GESerializer {
