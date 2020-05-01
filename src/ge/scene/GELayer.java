@@ -8,7 +8,7 @@ public class GELayer {
 
     private final Vector<GENode> layerNodes;
     private final Group group;
-    private final int z; // Used to sort layers, will be implemented soon
+    private final int z;
 
     public GELayer(int z){
         this.z = z;

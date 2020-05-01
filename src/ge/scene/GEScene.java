@@ -25,6 +25,12 @@ public class GEScene {
             root.getChildren().add(mainLayer.getNodesGroup());
             root.getChildren().add(uiLayer.getNodesGroup());
         }
+
+        public void replaceMainLayer(GELayer layer) {
+            rootNode.getChildren().remove(mainLayer.getNodesGroup());
+            rootNode.getChildren().add(layer.getNodesGroup());
+            mainLayer = layer;
+        }
     }
     private final SceneLayers sceneLayers;
 
@@ -34,6 +40,14 @@ public class GEScene {
         rootNode = (Group) rootScene.getRoot();
 
         sceneLayers = new SceneLayers(rootNode);
+    }
+
+    public GELayer getMainLayer() {
+        return sceneLayers.mainLayer;
+    }
+
+    public void replaceMainLayer(GELayer layer) {
+        sceneLayers.replaceMainLayer(layer);
     }
 
     private void addNodeToTheLayer(GELayer layer, GENode node){

@@ -2,11 +2,9 @@ import ge.geometry.GEGeometry;
 import ge.geometry.GESquare;
 import ge.scene.GENode;
 import ge.scene.GEScene;
-import ge.utils.GEColor;
-import ge.utils.GEKeyListener;
-import ge.utils.GERegularBoundingBox;
-import ge.utils.GEUIConstraints;
+import ge.utils.*;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
@@ -32,17 +30,25 @@ public class PolygonCreatorScene extends GEScene {
     private Vector<Point2D> points = null;
     private GENode polygonPreview = null;
 
-    private Text hintText = null;
+    private Text mainHintText = null;
+    private GENode mainHintNode = null;
+    private Text keyHintText = null;
+    private GENode keyHintNode = null;
+
+    private boolean showDynamicPreview = true;
+    private Point2D lastMouseMovePos = null;
 
     public PolygonCreatorScene(Scene rootScene){
         super(rootScene);
         setState(SceneState.WAITING_FOR_UNVEILING);
 
         points = new Vector<>(0);
+        lastMouseMovePos = new Point2D(0, 0);
     }
 
     public void resetPolygon(){
         points = new Vector<>(0);
+        lastMouseMovePos = new Point2D(0, 0);
         if (polygonPreview != null) {
             removeNodeFromMainLayer(polygonPreview);
         }
@@ -55,16 +61,17 @@ public class PolygonCreatorScene extends GEScene {
         polygonPreview.addMoveEvent(backgroundMoveHandler);
         addNodeToMainLayer(polygonPreview);
 
-        updateHintText();
+        updateMainHintText();
     }
 
     public void createUI(EventHandler<MouseEvent> exitClickHandler) {
         createBackgroundNode();
         createExitButton(exitClickHandler);
-        createHint(GEUIConstraints.safeAreaX, GEUIConstraints.safeAreaX/2.0 + GEUIConstraints.fontSize/4);
+        createMainHint(GEUIConstraints.safeAreaX, GEUIConstraints.safeAreaX/2.0 + GEUIConstraints.fontSize/4);
+        createKeyHint();
     }
 
-    private void updateHintText() {
+    private void updateMainHintText() {
         StringBuilder pointsString = new StringBuilder(hintPolygonPointsText);
         for (int i = 0; i < points.size(); i++) {
             pointsString.append('\n');
@@ -74,20 +81,32 @@ public class PolygonCreatorScene extends GEScene {
             pointsString.append((int) points.elementAt(i).getY());
             pointsString.append(")");
         }
-        hintText.setText(pointsString.toString());
+        mainHintText.setText(pointsString.toString());
     }
 
-    private void createHint(double posX, double posY){
-        hintText = new Text();
-        hintText.setText(hintFirstText);
-        hintText.setFont(new Font(GEUIConstraints.fontSize));
+    private void createKeyHint(){
+        keyHintText = new Text();
+        keyHintText.setFont(new Font(GEUIConstraints.fontSize));
 
-        GENode buff = new GENode(new GEGeometry(hintText));
-        buff.moveTo(posX, posY);
-        buff.setColor(GEColor.stdUINodeColor);
-        buff.addClickEvent(backgroundClickHandler);
-        buff.addMoveEvent(backgroundMoveHandler);
-        addNodeToUILayer(buff);
+        keyHintNode = new GENode(new GEGeometry(keyHintText));
+        keyHintNode.moveTo(200, 150);
+        keyHintNode.setColor(GEColor.stdUINodeColor);
+        keyHintNode.addClickEvent(backgroundClickHandler);
+        keyHintNode.addMoveEvent(backgroundMoveHandler);
+        addNodeToUILayer(keyHintNode);
+    }
+
+    private void createMainHint(double posX, double posY){
+        mainHintText = new Text();
+        mainHintText.setText(hintFirstText);
+        mainHintText.setFont(new Font(GEUIConstraints.fontSize));
+
+        mainHintNode = new GENode(new GEGeometry(mainHintText));
+        mainHintNode.moveTo(posX, posY);
+        mainHintNode.setColor(GEColor.stdUINodeColor);
+        mainHintNode.addClickEvent(backgroundClickHandler);
+        mainHintNode.addMoveEvent(backgroundMoveHandler);
+        addNodeToUILayer(mainHintNode);
     }
 
     private void createExitButton(EventHandler<MouseEvent> clickHandler){
@@ -230,9 +249,61 @@ public class PolygonCreatorScene extends GEScene {
         return buffPoints;
     }
 
+    public void updateKeyHint() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (showDynamicPreview) {
+            stringBuilder.append("[T]: Disable dynamic preview");
+        } else {
+            stringBuilder.append("[T]: Enable dynamic preview");
+        }
+        if (points.size() > 0) {
+            stringBuilder.append("\n[R]: Remove last point");
+        }
+        keyHintText.setText(stringBuilder.toString());
+
+        Bounds textBounds = keyHintNode.getGeometry().getBounds();
+        double offsetX = textBounds.getWidth() + GEUIConstraints.fontSize + GEUIConstraints.safeAreaX/4.0;
+        double offsetY = textBounds.getHeight() + GEUIConstraints.fontSize + GEUIConstraints.safeAreaX/4.0;
+        double posX = GEResizeListener.getWidth() - offsetX;
+        double posY = GEResizeListener.getHeight() - offsetY;
+        keyHintNode.moveTo(posX, posY);
+    }
+
+    public void configureKeyHint() {
+        updateKeyHint();
+        GEResizeListener.resizeAction = (width, height) -> {
+            updateKeyHint();
+        };
+    }
+
     public void configureKeyListener(){
-        GEKeyListener.action = (keyEvent) -> {
-            System.out.println(222);
+        GEKeyListener.pressAction = (keyEvent) -> {
+            switch (keyEvent.getCode()) {
+                case T:
+                    showDynamicPreview = !showDynamicPreview;
+                    if (showDynamicPreview) {
+                        addPoint(lastMouseMovePos.getX(), lastMouseMovePos.getY());
+                        updatePreview();
+                        updateMainHintText();
+                        updateKeyHint();
+                        removeLastPoint();
+                    } else {
+                        updatePreview();
+                        updateMainHintText();
+                        updateKeyHint();
+                    }
+                    break;
+                case R:
+                    if (points.size() > 0) {
+                        removeLastPoint();
+                        updatePreview();
+                        updateMainHintText();
+                        updateKeyHint();
+                    }
+                    break;
+            }
+        };
+        GEKeyListener.releaseAction = (keyEvent) -> {
         };
     }
 
@@ -245,7 +316,8 @@ public class PolygonCreatorScene extends GEScene {
                 case WAITING_FOR_POINT:
                     addPoint(e.getSceneX(), e.getSceneY());
                     updatePreview();
-                    updateHintText();
+                    updateMainHintText();
+                    updateKeyHint();
                     break;
             }
         }
@@ -258,10 +330,13 @@ public class PolygonCreatorScene extends GEScene {
                 case WAITING_FOR_UNVEILING:
                     break;
                 case WAITING_FOR_POINT:
-                    addPoint(e.getSceneX(), e.getSceneY());
-                    updatePreview();
-                    updateHintText();
-                    removeLastPoint();
+                    lastMouseMovePos = new Point2D(e.getSceneX(), e.getSceneY());
+                    if (showDynamicPreview) {
+                        addPoint(e.getSceneX(), e.getSceneY());
+                        updatePreview();
+                        updateMainHintText();
+                        removeLastPoint();
+                    }
                     break;
             }
         }

@@ -1,9 +1,9 @@
 import ge.utils.GEKeyListener;
+import ge.utils.GEResizeListener;
 import ge.utils.GEUIConstraints;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -11,8 +11,8 @@ import java.awt.*;
 
 public class Main extends Application {
 
-    private Stage primaryStage = null;
-    private EditorScene editorScene = null;
+    public static Stage primaryStage = null;
+    public static EditorScene editorScene = null;
 
     @Override
     public void start(Stage primaryStage) {
@@ -39,14 +39,17 @@ public class Main extends Application {
         primaryStage.setMinHeight(scene.getHeight());
         primaryStage.setMinWidth(scene.getWidth());
 
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        GEKeyListener.init(primaryStage);
+        GEResizeListener.init(primaryStage);
+
         editorScene = new EditorScene(scene);
         editorScene.createBackgroundNode();
         editorScene.createUI();
-
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, GEKeyListener.keyHandler);
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        editorScene.configureKeyHint();
+        editorScene.configureKeyListener();
     }
 
     public static void main(String[] args) {

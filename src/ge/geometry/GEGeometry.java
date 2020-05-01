@@ -119,6 +119,10 @@ public class GEGeometry {
         strokeWidth = w;
     }
 
+    public double getStrokeWidth(){
+        return strokeWidth;
+    }
+
     public void moveTo(double x, double y){
         shape.setLayoutX(x);
         shape.setLayoutY(y);
