@@ -8,20 +8,18 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
+import java.nio.file.*;
 import java.util.Vector;
 
 public class EditorScene extends GEScene {
@@ -46,6 +44,9 @@ public class EditorScene extends GEScene {
     private GENode keyHintNode = null;
 
     private PolygonCreatorScene polygonCreatorScene = null;
+
+    private final String geometriesPackagePath = "ge/geometry";
+    private String geometriesAbsolutePath = null;
 
     public EditorScene(Scene rootScene) {
         super(rootScene);
@@ -166,7 +167,9 @@ public class EditorScene extends GEScene {
     }
 
     private void createMainShapesMenu(int posX, int posY){
-        GEClassFinder classFinder = new GEClassFinder("ge/geometry");
+        GEClassFinder classFinder = new GEClassFinder(geometriesPackagePath);
+        geometriesAbsolutePath = classFinder.getAbsolutePath();
+
         Class<?>[] availableGeometryClasses = classFinder.getClassesArray();
 
         System.out.println("Available geometry classes:");
@@ -194,6 +197,7 @@ public class EditorScene extends GEScene {
                             addNodeToUILayer(buffButton);
 
                             posY = posY + GEUIConstraints.offsetY;
+                            GEUIConstraints.pluginMenuY = posY;
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                         }
@@ -316,13 +320,30 @@ public class EditorScene extends GEScene {
                             FileChooser pluginChooser = new FileChooser();
                             pluginChooser.setTitle("Choose plugin file");
                             pluginChooser.getExtensionFilters().addAll(
-                                    new FileChooser.ExtensionFilter("JvGE Plugin", "*.jvp"),
+//                                    new FileChooser.ExtensionFilter("JvGE Plugin", "*.jvp"),
                                     new FileChooser.ExtensionFilter("Java Compiled Class", "*.class"),
                                     new FileChooser.ExtensionFilter("Any", "*")
                             );
                             File plugin = pluginChooser.showOpenDialog(Main.primaryStage);
 
                             // Handle opened plugin
+                            if (plugin != null && plugin.exists()) {
+
+                                File file = new File(geometriesAbsolutePath + "/" + plugin.getName());
+                                try {
+                                    file.createNewFile();
+                                    Files.copy(Paths.get(plugin.getAbsolutePath()), Paths.get(file.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
+
+                                    clearUILayer();
+
+                                    createUI();
+                                    configureKeyHint();
+
+                                } catch (IOException e) {
+                                    System.out.println("Unable to copy plugin");
+                                    e.printStackTrace();
+                                }
+                            }
                             break;
                     }
                     break;

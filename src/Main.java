@@ -29,6 +29,8 @@ public class Main extends Application {
         GEUIConstraints.offsetY = GEUIConstraints.safeAreaX*3/4;
         GEUIConstraints.buttonWidth = GEUIConstraints.safeAreaX - 2*GEUIConstraints.safeAreaX/4;
         GEUIConstraints.fontSize = GEUIConstraints.safeAreaX/4.0;
+        GEUIConstraints.pluginMenuX = GEUIConstraints.safeAreaX/2;
+        GEUIConstraints.pluginMenuY = GEUIConstraints.safeAreaX/2;
 
         System.out.println("Screen size:\n" + screenSize);
         System.out.println("Scene size:\n" + sceneSize);

@@ -6,4 +6,7 @@ public class GEUIConstraints {
     public static int buttonWidth;
     public static int offsetY;
     public static double fontSize;
+
+    public static int pluginMenuX;
+    public static int pluginMenuY;
 }

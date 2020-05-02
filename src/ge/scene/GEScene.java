@@ -50,6 +50,17 @@ public class GEScene {
         sceneLayers.replaceMainLayer(layer);
     }
 
+    private void clearLayer(GELayer layer) {
+        Vector<GENode> nodes = (Vector<GENode>)layer.getNodes().clone();
+        for (GENode node : nodes) {
+            removeNodeFromUILayer(node);
+        }
+    }
+
+    public void clearUILayer() {
+        clearLayer(sceneLayers.uiLayer);
+    }
+
     private void addNodeToTheLayer(GELayer layer, GENode node){
         if (layer != null && node != null) {
             layer.addNode(node);

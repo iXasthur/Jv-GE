@@ -14,6 +14,7 @@ import java.util.*;
 public class GEClassFinder {
 
     private File[] classFiles = new File[]{};
+    private String absolutePath = "";
 
     public GEClassFinder(String packageName){
         try {
@@ -29,6 +30,7 @@ public class GEClassFinder {
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             File dir = new File(URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8));
+            absolutePath = dir.getAbsolutePath();
             Collections.addAll(list, Objects.requireNonNull(dir.listFiles()));
         }
         return list.toArray(new File[]{});
@@ -49,5 +51,9 @@ public class GEClassFinder {
             }
         }
         return list.toArray(new Class<?>[]{});
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
     }
 }
