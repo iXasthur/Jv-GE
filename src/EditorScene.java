@@ -197,7 +197,6 @@ public class EditorScene extends GEScene {
                             addNodeToUILayer(buffButton);
 
                             posY = posY + GEUIConstraints.offsetY;
-                            GEUIConstraints.pluginMenuY = posY;
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                         }
