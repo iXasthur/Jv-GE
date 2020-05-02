@@ -1,6 +1,4 @@
-import ge.utils.GEKeyListener;
-import ge.utils.GEResizeListener;
-import ge.utils.GEUIConstraints;
+import ge.utils.*;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -8,6 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class Main extends Application {
 

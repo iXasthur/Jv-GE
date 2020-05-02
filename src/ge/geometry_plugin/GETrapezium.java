@@ -1,5 +1,6 @@
-package ge.geometry;
+package ge.geometry_plugin;
 
+import ge.geometry.GEGeometry;
 import ge.utils.GEBoundingBox;
 import ge.utils.GERegularBoundingBox;
 

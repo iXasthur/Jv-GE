@@ -45,9 +45,6 @@ public class EditorScene extends GEScene {
 
     private PolygonCreatorScene polygonCreatorScene = null;
 
-    private final String geometriesPackagePath = "ge/geometry";
-    private String geometriesAbsolutePath = null;
-
     public EditorScene(Scene rootScene) {
         super(rootScene);
         setState(SceneState.WAITING_FOR_SELECTION);
@@ -108,7 +105,7 @@ public class EditorScene extends GEScene {
         double mainHintPosX = GEUIConstraints.safeAreaX * 2.25;
         double mainHintPosY = GEUIConstraints.safeAreaX/2.0 + GEUIConstraints.fontSize/4;
 
-        createMainShapesMenu(GEUIConstraints.safeAreaX/2, GEUIConstraints.safeAreaX/2);
+        createShapeSpawnerMenu(GEUIConstraints.safeAreaX/2, GEUIConstraints.safeAreaX/2);
         createPolygonCreatorIcon(GEUIConstraints.safeAreaX*3/2, GEUIConstraints.safeAreaX/2);
         createMainHint(mainHintPosX, mainHintPosY);
         createKeyHint();
@@ -166,45 +163,57 @@ public class EditorScene extends GEScene {
         addNodeToBackgroundLayer(bgRectangle);
     }
 
-    private void createMainShapesMenu(int posX, int posY){
-        GEClassFinder classFinder = new GEClassFinder(geometriesPackagePath);
-        geometriesAbsolutePath = classFinder.getAbsolutePath();
+    private boolean createShapeSpawnerNode(Class<?> cl, double posX, double posY) {
+        Constructor<?> constructor = GEClassLoader.getGeometryClassConstructor(cl);
+        if (constructor != null) {
+            try {
+                GEGeometry geometry;
+                geometry = (GEGeometry) constructor.newInstance(new GERegularBoundingBox(GEUIConstraints.buttonWidth));
 
-        Class<?>[] availableGeometryClasses = classFinder.getClassesArray();
+                GENode buffButton = new GENode(geometry);
+                buffButton.setStrokeWidth(3);
+                buffButton.setColor(GEColor.stdUINodeColor);
+                buffButton.moveTo(posX, posY);
+                buffButton.addClickEvent(uiNodeSpawnerClickHandler);
+                buffButton.addMoveEvent(sceneMoveHandler);
+                addNodeToUILayer(buffButton);
 
-        System.out.println("Available geometry classes:");
+                return true;
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 
-        if (availableGeometryClasses.length > 0) {
-            Class<?> neededParameterType = GERegularBoundingBox.class;
-
-            for (Class<?> cl : availableGeometryClasses) {
+    private void createShapeSpawnerMenu(int posX, int posY){
+        try {
+            Class<?>[] arr = GEClassLoader.getClassesFromPackage(GEPaths.geometriesPackagePath);
+            arr = GEClassLoader.filterToGeometryClasses(arr);
+            System.out.println("Available core geometries:");
+            for (Class<?> cl : arr) {
                 System.out.println(cl);
-
-                Constructor<?>[] constructors = cl.getConstructors();
-                for (Constructor<?> constructor : constructors) {
-                    if (constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0] == neededParameterType) {
-
-                        GEGeometry geometry;
-                        try {
-                            geometry = (GEGeometry)constructor.newInstance(new GERegularBoundingBox(GEUIConstraints.buttonWidth));
-
-                            GENode buffButton = new GENode(geometry);
-                            buffButton.setStrokeWidth(3);
-                            buffButton.setColor(GEColor.stdUINodeColor);
-                            buffButton.moveTo(posX, posY);
-                            buffButton.addClickEvent(uiNodeSpawnerClickHandler);
-                            buffButton.addMoveEvent(sceneMoveHandler);
-                            addNodeToUILayer(buffButton);
-
-                            posY = posY + GEUIConstraints.offsetY;
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-
-                        break;
-                    }
+                if (createShapeSpawnerNode(cl, posX, posY)) {
+                    posY = posY + GEUIConstraints.offsetY;
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            Class<?>[] arr = GEClassLoader.getClassesFromJARsDirectory(GEPaths.pluginsDirectoryPath);
+            arr = GEClassLoader.filterToGeometryClasses(arr);
+            System.out.println("Available plugin geometries:");
+            for (Class<?> cl : arr) {
+                System.out.println(cl);
+                if (createShapeSpawnerNode(cl, posX, posY)) {
+                    posY = posY + GEUIConstraints.offsetY;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -320,7 +329,7 @@ public class EditorScene extends GEScene {
                             pluginChooser.setTitle("Choose plugin file");
                             pluginChooser.getExtensionFilters().addAll(
 //                                    new FileChooser.ExtensionFilter("JvGE Plugin", "*.jvp"),
-                                    new FileChooser.ExtensionFilter("Java Compiled Class", "*.class"),
+                                    new FileChooser.ExtensionFilter("JAR Archive", "*.jar"),
                                     new FileChooser.ExtensionFilter("Any", "*")
                             );
                             File plugin = pluginChooser.showOpenDialog(Main.primaryStage);
@@ -328,7 +337,7 @@ public class EditorScene extends GEScene {
                             // Handle opened plugin
                             if (plugin != null && plugin.exists()) {
 
-                                File file = new File(geometriesAbsolutePath + "/" + plugin.getName());
+                                File file = new File(GEPaths.pluginsDirectoryPath + "/" + plugin.getName());
                                 try {
                                     file.createNewFile();
                                     Files.copy(Paths.get(plugin.getAbsolutePath()), Paths.get(file.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);

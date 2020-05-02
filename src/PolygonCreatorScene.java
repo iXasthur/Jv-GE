@@ -109,12 +109,40 @@ public class PolygonCreatorScene extends GEScene {
         addNodeToUILayer(mainHintNode);
     }
 
+    private double[] createExitButtonPoints() {
+        double[] points = new double[8*2];
+        points[0] = 0;
+        points[1] = 0;
+
+        points[2] = -GEUIConstraints.buttonWidth/2.0;
+        points[3] = -GEUIConstraints.buttonWidth/2.0;
+
+        points[4] = 0;
+        points[5] = 0;
+
+        points[6] = -GEUIConstraints.buttonWidth/2.0;
+        points[7] = GEUIConstraints.buttonWidth/2.0;
+
+        points[8] = 0;
+        points[9] = 0;
+
+        points[10] = GEUIConstraints.buttonWidth/2.0;
+        points[11] = GEUIConstraints.buttonWidth/2.0;
+
+        points[12] = 0;
+        points[13] = 0;
+
+        points[14] = GEUIConstraints.buttonWidth/2.0;
+        points[15] = -GEUIConstraints.buttonWidth/2.0;
+        return points;
+    }
+
     private void createExitButton(EventHandler<MouseEvent> clickHandler){
         double posX = GEUIConstraints.safeAreaX/2.0;
         double posY = GEUIConstraints.safeAreaX/2.0;
 
-        GENode buffButton = new GENode(new GESquare(new GERegularBoundingBox(GEUIConstraints.buttonWidth)));
-        buffButton.setStrokeWidth(3);
+        GENode buffButton = new GENode(new GEGeometry(createExitButtonPoints()));
+        buffButton.setStrokeWidth(5);
         buffButton.setColor(GEColor.stdUINodeColor);
         buffButton.moveTo(posX, posY);
         buffButton.addClickEvent(clickHandler);

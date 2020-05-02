@@ -1,6 +1,7 @@
-package ge.geometry;
+package ge.geometry_plugin;
 
 
+import ge.geometry.GERegularPolygon;
 import ge.utils.GERegularBoundingBox;
 
 public class GETriangle extends GERegularPolygon {
