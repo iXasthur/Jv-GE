@@ -1,3 +1,3 @@
 # Jv-GE
-# JavaFX 2D graphics editor
+JavaFX 2D graphics editor
  
